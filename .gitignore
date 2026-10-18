@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+
+# Segredos (chave da API Anthropic do agente etc.)
+.env
+.env.*
+!.env.example
+*.key
+secrets*
+
+# SSMS / Windows / editores
+*.bak
+*.tmp
+*.suo
+*.user
+Thumbs.db
+desktop.ini
+~$*
+.vscode/
+.idea/
+.claude/
+
+# Notas de trabalho locais, fora da estrutura de entrega
+md/
+Tarefas/
