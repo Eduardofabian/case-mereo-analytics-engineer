@@ -13,7 +13,7 @@ import os
 from dataclasses import dataclass
 from typing import Literal
 
-import pyodbc
+import duckdb
 from pydantic_ai import Agent, RunContext
 
 import db
@@ -24,7 +24,7 @@ MODEL = os.environ.get("MEREO_AGENT_MODEL", "anthropic:claude-sonnet-5")
 
 @dataclass
 class Deps:
-    conn: pyodbc.Connection
+    conn: duckdb.DuckDBPyConnection
 
 
 SYSTEM_PROMPT = """
@@ -106,7 +106,7 @@ def main():
     import sys
     conn = db.get_connection()
     deps = Deps(conn=conn)
-    pergunta = " ".join(sys.argv[1:]) or "Qual o score da Gerencia de Marketing?"
+    pergunta = " ".join(sys.argv[1:]) or "Qual o score da Gerência de Marketing?"
     resultado = agent.run_sync(pergunta, deps=deps)
     print(resultado.output)
 
