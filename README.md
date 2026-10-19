@@ -422,6 +422,18 @@ como "pior gestora" foi descartado nessa fase porque quase metade do
 efeito vem de um desligamento isolado (Paula Cardoso), não de desempenho
 sustentado do time (ver §2 de `analise_resultados.md`).
 
+Para rodar o protótipo:
+
+```powershell
+python -m streamlit run painel/streamlit/prototipo_streamlit.py
+```
+
+(usa `python -m` em vez do comando `streamlit` direto, que depende do
+Scripts/ do Python estar no PATH; `python -m` funciona com qualquer
+Python ativo que já tenha o pacote instalado). Abre no navegador em
+`localhost:8501`; o layout muda pela barra lateral ou por `?opcao=final`,
+`?opcao=a` ou `?opcao=b` na URL.
+
 ### Etapa 2. Protótipo HTML/Figma (`painel/html/`): decidir a aparência
 
 Com o escopo fechado, o problema virou visual: layout fixo de página única
