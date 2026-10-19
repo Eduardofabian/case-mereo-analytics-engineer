@@ -46,7 +46,7 @@ tanto no mockup quanto no Power BI.
 | `--good` | `#1F9254` | Faixa boa (≥100) |
 | `--bad` | `#E5484D` | Faixa crítica (<80) |
 | `#6227EA` (Top 3) / `#06B6D4` (Bottom 3) | — | Gestores Top/Bottom — comparação relativa, fora do semáforo acima (ver seção própria) |
-| `#2A78D6` / `#1BAF7A` / `#E87BA4` / `#EDA100` | — | Top 5 Colaboradores — categórico por área, fora do semáforo (ver seção própria) |
+| `#2A78D6` / `#64748B` / `#E87BA4` / `#EDA100` | — | Top 5 Colaboradores — categórico por área, fora do semáforo (ver seção própria) |
 | `--ink` | `#1C1C1C` | Texto principal |
 | `--ink-soft` | `#6B7280` | Texto secundário / rótulos |
 | `--bg-page` | `#F7F7F9` | Fundo da página |
@@ -348,15 +348,17 @@ página. Trocado por uma paleta categórica sem vermelho/laranja/verde
 (reservados pro semáforo de score):
 
 - Controladoria: `#2A78D6` (azul).
-- Logística: `#1BAF7A` (verde-água — visualmente distinto do verde-semáforo
-  `#1F9254`, confirmado pelo validador).
+- Logística: `#64748B` (cinza-azulado — trocado de `#1BAF7A` na
+  segunda rodada de auditoria: mesmo sendo visualmente distinto do
+  verde-semáforo `#1F9254`, ainda era um tom de verde reaproveitado
+  como categoria, a última cor do semáforo ainda em uso fora dele).
 - Qualidade: `#E87BA4` (magenta).
 - 4ª área, se precisar: `#EDA100` (amarelo).
 
 Validado com `validate_palette.js`, modo light: todos os checks duros
-passam. Dois WARNs de contraste (`#1BAF7A` e `#E87BA4` abaixo de 3:1) —
-mesma regra do Bottom 3: rótulo de valor visível na barra, não só a
-legenda de cor.
+passam. Um WARN de contraste (`#E87BA4` abaixo de 3:1) — mesma regra
+do Bottom 3: rótulo de valor visível na barra, não só a legenda de
+cor.
 
 ---
 
@@ -371,4 +373,4 @@ legenda de cor.
 | Gestores Top/Bottom | Tabela + Top N | `clusteredBarChart` + filtro básico manual | Top N nativo nunca funcionou de forma confiável |
 | Top 5 Colaboradores | Tabela + `RANKX` | `barChart` + Top N (funcionou) | UX, e aqui o Top N nativo não teve o mesmo bug |
 | Cor do Bottom 3 (Gestores) | vermelho (semáforo) | `#06B6D4` ciano | Auditoria: vermelho colidia com "crítico" da legenda de score, mas 2 dos 3 gestores não são críticos |
-| Cor por área (Top 5) | laranja (uma das áreas) | paleta categórica própria (`#2A78D6`/`#1BAF7A`/`#E87BA4`) | Auditoria: laranja já significa "faixa 80-100" na legenda de score |
+| Cor por área (Top 5) | laranja (uma das áreas) | paleta categórica própria (`#2A78D6`/`#64748B`/`#E87BA4`) | Auditoria: laranja já significa "faixa 80-100" na legenda de score; depois trocou o verde-água por cinza-azulado (achado da 2ª rodada: verde ainda reaproveitado do semáforo) |
