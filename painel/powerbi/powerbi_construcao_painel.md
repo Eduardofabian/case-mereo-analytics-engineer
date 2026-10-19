@@ -45,6 +45,8 @@ tanto no mockup quanto no Power BI.
 | `--mereo-orange` | `#FF5C39` | Destaque / faixa intermediária (80–100) |
 | `--good` | `#1F9254` | Faixa boa (≥100) |
 | `--bad` | `#E5484D` | Faixa crítica (<80) |
+| `#6227EA` (Top 3) / `#06B6D4` (Bottom 3) | — | Gestores Top/Bottom — comparação relativa, fora do semáforo acima (ver seção própria) |
+| `#2A78D6` / `#1BAF7A` / `#E87BA4` / `#EDA100` | — | Top 5 Colaboradores — categórico por área, fora do semáforo (ver seção própria) |
 | `--ink` | `#1C1C1C` | Texto principal |
 | `--ink-soft` | `#6B7280` | Texto secundário / rótulos |
 | `--bg-page` | `#F7F7F9` | Fundo da página |
@@ -283,7 +285,7 @@ legível nativamente.
 **Plano original:** 2 Tabelas lado a lado com filtro nativo "Top N".
 **Visual final:** 2× `clusteredBarChart`, com **filtro básico manual**
 (não Top N) — decisão pragmática depois de 3 bugs encadeados que o Top N
-nativo nunca resolveu de forma confjC�vel:
+nativo nunca resolveu de forma confiável:
 
 1. Eixo com agregação "Contagem" em vez de "Média" de `score_medio_time`.
 2. O campo "Por valor" do próprio filtro Top N (um well separado do eixo,
@@ -305,6 +307,23 @@ com os nomes exatos de cada grupo (confirmado no `.pbip`):
 - **Bottom 3:** ∈ {Olívia Queiroz, Sofia Oliveira, Rafael Jardim}.
 - Valor em ambos: média de `vw_score_gestor[score_medio_time]`.
 
+**Correção de paleta (auditoria `/auditoria-dashboard-mereo`):** o Bottom 3
+usava vermelho só porque são os 3 piores do grupo — mas Rafael Jardim (91)
+e Sofia Oliveira (93) não são críticos de verdade (faixa 80-100, que é
+laranja na legenda de "Distribuição de Score"). Vermelho aqui colidia com
+o significado fixado por essa legenda ("crítico, <80"). Trocado por um par
+que não é do semáforo de score — é comparação relativa (melhor/pior do
+grupo), não faixa de desempenho:
+
+- **Top 3:** `#6227EA` (roxo Mereo).
+- **Bottom 3:** `#06B6D4` (ciano).
+
+Validado com `validate_palette.js` (skill `dataviz`), modo light,
+superfície `#fcfcfb`: todos os checks duros passam — separação CVD 25,0
+(deutan) / 26,7 (tritan), visão normal 33,1. Um WARN de contraste em
+`#06B6D4` (2,36:1) — por isso o rótulo de valor na barra é obrigatório,
+não só a cor (já coberto, o visual mostra o valor por cima da barra).
+
 ---
 
 ## Top 5 Colaboradores
@@ -320,6 +339,25 @@ a ambiguidade de agregação que travou o Top N dos gestores).
 - Filtros do visual: `dim_colaborador[flag_elegivel_r10] = 1` **e** Top N
   = 5 por `score` (maior) — filtro nativo, sem workaround.
 
+**Correção de paleta (auditoria `/auditoria-dashboard-mereo`):** a cor por
+barra aqui é categórica (identifica a Gerência do colaborador — Controladoria,
+Logística, Qualidade), não faixa de score. Antes usava laranja pra uma das
+áreas, o mesmo tom que a legenda de "Distribuição de Score" usa pra faixa
+80-100 — mesma cor, dois significados diferentes em dois gráficos da mesma
+página. Trocado por uma paleta categórica sem vermelho/laranja/verde
+(reservados pro semáforo de score):
+
+- Controladoria: `#2A78D6` (azul).
+- Logística: `#1BAF7A` (verde-água — visualmente distinto do verde-semáforo
+  `#1F9254`, confirmado pelo validador).
+- Qualidade: `#E87BA4` (magenta).
+- 4ª área, se precisar: `#EDA100` (amarelo).
+
+Validado com `validate_palette.js`, modo light: todos os checks duros
+passam. Dois WARNs de contraste (`#1BAF7A` e `#E87BA4` abaixo de 3:1) —
+mesma regra do Bottom 3: rótulo de valor visível na barra, não só a
+legenda de cor.
+
 ---
 
 ## Resumo de visuais (final, confirmado no `.pbip`)
@@ -332,3 +370,5 @@ a ambiguidade de agregação que travou o Top N dos gestores).
 | Zona Crítica | Tabela | `clusteredBarChart` | UX — tabela nativa parecia pouco profissional |
 | Gestores Top/Bottom | Tabela + Top N | `clusteredBarChart` + filtro básico manual | Top N nativo nunca funcionou de forma confiável |
 | Top 5 Colaboradores | Tabela + `RANKX` | `barChart` + Top N (funcionou) | UX, e aqui o Top N nativo não teve o mesmo bug |
+| Cor do Bottom 3 (Gestores) | vermelho (semáforo) | `#06B6D4` ciano | Auditoria: vermelho colidia com "crítico" da legenda de score, mas 2 dos 3 gestores não são críticos |
+| Cor por área (Top 5) | laranja (uma das áreas) | paleta categórica própria (`#2A78D6`/`#1BAF7A`/`#E87BA4`) | Auditoria: laranja já significa "faixa 80-100" na legenda de score |

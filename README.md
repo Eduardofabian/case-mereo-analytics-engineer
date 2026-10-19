@@ -47,10 +47,20 @@ Por isso criei duas skills específicas deste case:
 - `auditoria-dashboard-mereo`: audita fidelidade do painel ao star
   schema e ao padrão visual real do produto Mereo.
 
-Rodei as duas antes da entrega, apliquei as correções de maior impacto
-na nota e re-rodei para confirmar. O relatório gerado em
-`_review/entrega_audit_20261019.md` fica versionado como evidência do
-processo.
+Rodei a `auditoria-entrega-mereo` duas vezes: a primeira apontou 84/100
+com gaps específicos (peso negativo não documentado, matriz de áreas
+cortada, caminhos obsoletos da reorganização, comentários do agente
+desatualizados); apliquei as correções e a segunda rodada confirmou
+91/100, com os três achados remanescentes também corrigidos antes do
+commit final. Os dois relatórios ficam versionados em `_review/` como
+evidência do processo.
+
+A `auditoria-dashboard-mereo` foi rodada ao final, depois de várias
+correções manuais feitas junto com o par técnico durante a tarde
+(hierarquia de área, ausência de scroll, consistência dos rótulos). Deu
+84/100 — BOM, sem bloqueadores, com 3 achados médios que ficaram
+registrados em "Limitações conhecidas" por decisão de tempo. O relatório
+está em `_review/dashboard_audit_20261019.md`.
 
 ## Estrutura do repositório
 
@@ -629,3 +639,23 @@ Antes de abrir qualquer query, eu faria perguntas para a pessoa: quem mantém es
   correção do merge em runtime (só a função de carga de dados foi testada
   isoladamente) — risco baixo porque o protótipo não é o entregável
   avaliado da Parte 3 (esse é o `.pbip`/print em `painel/entrega/`).
+- **Cor com dois significados no painel:** a legenda de "Distribuição de
+  Score" fixa vermelho = crítico (<80), laranja = 80-100, verde = ≥100.
+  O gráfico "Gestores — Top e Bottom" reaproveita vermelho só pra marcar
+  os 3 piores do grupo, mesmo quando não são críticos de verdade (ex.:
+  Rafael Jardim 91, Sofia Oliveira 93 aparecem em vermelho sem estar na
+  faixa crítica). O "Top 5 Colaboradores" usa laranja pra identificar
+  área (categórico), mesma cor que já significa "80-100" na legenda de
+  score. Risco: leitura rápida pode confundir "pior do grupo" com
+  "crítico". Decisão: manter por tempo nesta entrega; achado da
+  `auditoria-dashboard-mereo` (`_review/dashboard_audit_20261019.md`).
+- **Matriz "Score por Área" sem recuo hierárquico:** diretorias e
+  gerências aparecem com o mesmo recuo (0) e o mesmo negrito — só a
+  ordem das linhas indica o que está dentro do quê. Correção é visual
+  (Power BI Desktop), não afeta os números; não aplicada por tempo.
+- **"Gestores — Top e Bottom" fixo por nome:** os 6 gestores mostrados
+  vêm de uma seleção manual, não de um cálculo em `vw_score_gestor`. Se
+  os dados do ciclo forem recarregados, o painel continua mostrando os
+  mesmos 6 nomes em vez de reordenar pelos novos valores. Correção ideal
+  seria mover o ranking pra uma medida/view; registrado aqui como a
+  alternativa mínima, por tempo.
