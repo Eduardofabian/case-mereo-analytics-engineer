@@ -644,11 +644,6 @@ Antes de abrir qualquer query, eu faria perguntas para a pessoa: quem mantém es
   fornecido no enunciado (`.db`/`.xlsx`), não código produzido neste case;
   mantido fora do git por ser volumoso e já estar anexado ao material
   original. O arquivo continua presente no disco, só não é rastreado.
-- **UI do protótipo Streamlit não validada visualmente:** a correção do
-  merge em runtime foi testada só na função de carga de dados,
-  isoladamente; a tela em si nunca foi reaberta e conferida depois do
-  fix. Risco baixo porque o protótipo não é o entregável avaliado da
-  Parte 3 (esse é o `.pbip`/print em `painel/entrega/`).
 - **Matriz "Score por Área" sem recuo hierárquico:** diretorias e
   gerências aparecem com o mesmo recuo (`steppedLayoutIndentation = 0D`
   no visual) e o mesmo negrito; só a ordem das linhas indica o que está
