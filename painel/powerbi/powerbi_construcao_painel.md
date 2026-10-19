@@ -349,7 +349,7 @@ página. Trocado por uma paleta categórica sem vermelho/laranja/verde
 
 - Controladoria: `#2A78D6` (azul).
 - Logística: `#64748B` (cinza-azulado — trocado de `#1BAF7A` na
-  segunda rodada de auditoria: mesmo sendo visualmente distinto do
+  quarta rodada de auditoria: mesmo sendo visualmente distinto do
   verde-semáforo `#1F9254`, ainda era um tom de verde reaproveitado
   como categoria, a última cor do semáforo ainda em uso fora dele).
 - Qualidade: `#E87BA4` (magenta).
@@ -373,4 +373,4 @@ cor.
 | Gestores Top/Bottom | Tabela + Top N | `clusteredBarChart` + filtro básico manual | Top N nativo nunca funcionou de forma confiável |
 | Top 5 Colaboradores | Tabela + `RANKX` | `barChart` + Top N (funcionou) | UX, e aqui o Top N nativo não teve o mesmo bug |
 | Cor do Bottom 3 (Gestores) | vermelho (semáforo) | `#06B6D4` ciano | Auditoria: vermelho colidia com "crítico" da legenda de score, mas 2 dos 3 gestores não são críticos |
-| Cor por área (Top 5) | laranja (uma das áreas) | paleta categórica própria (`#2A78D6`/`#64748B`/`#E87BA4`) | Auditoria: laranja já significa "faixa 80-100" na legenda de score; depois trocou o verde-água por cinza-azulado (achado da 2ª rodada: verde ainda reaproveitado do semáforo) |
+| Cor por área (Top 5) | laranja (uma das áreas) | paleta categórica própria (`#2A78D6`/`#64748B`/`#E87BA4`) | Auditoria: laranja já significa "faixa 80-100" na legenda de score; depois trocou o verde-água por cinza-azulado (achado da 4ª rodada: verde ainda reaproveitado do semáforo) |
