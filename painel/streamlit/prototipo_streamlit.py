@@ -12,9 +12,11 @@ Prototipo (Streamlit) - Case Mereo / Grupo Aurora
 Streamlit nao controla grid/flex por pixel, entao cada opcao e HTML/CSS bruto
 via st.html, com o chrome do Streamlit (header, toolbar, padding) escondido.
 
-Fonte: p1/p2/p3_enriquecido.csv (derivados das views oficiais do pipeline,
-reconciliados com respostas/) + dados/dim_colaborador.csv so pro total de
-colaboradores. Nada e recalculado - so leitura e exibicao.
+Fonte: views oficiais do pipeline (vw_score_colaborador, vw_score_area,
+vw_score_gestor) enriquecidas em runtime com as dimensoes (dim_colaborador,
+dim_area) via merge do pandas -- nao ha CSV "_enriquecido" pre-gerado, pra
+nao depender de um passo manual fora do run_pipeline.py. Nada e recalculado
+- so leitura, merge e exibicao.
 
 Rodar: streamlit run painel/prototipo_streamlit.py
 """
@@ -26,7 +28,7 @@ import streamlit as st
 st.set_page_config(page_title="Protótipo — Resultados Ciclo 2025", layout="wide",
                    initial_sidebar_state="expanded")
 
-DATA_DIR = Path(__file__).resolve().parent
+DATA_DIR = Path(__file__).resolve().parent.parent / "dados"
 
 NOTA_QUALIDADE = (
     "O menor score individual (18.17, Paula Cardoso) é de uma colaboradora "
@@ -39,11 +41,28 @@ NOTA_QUALIDADE = (
 
 @st.cache_data
 def carregar():
-    """Só lê e agrega o que já foi apurado - não recalcula regra de negócio."""
-    p1 = pd.read_csv(DATA_DIR / "p1_enriquecido.csv")
-    p2 = pd.read_csv(DATA_DIR / "p2_enriquecido.csv")
-    p3 = pd.read_csv(DATA_DIR / "p3_enriquecido.csv")
-    n_total = len(pd.read_csv(DATA_DIR / "dados" / "dim_colaborador.csv"))
+    """Só lê, enriquece (merge com as dimensões) e agrega o que já foi
+    apurado - não recalcula regra de negócio nenhuma."""
+    dim_colaborador = pd.read_csv(DATA_DIR / "dim_colaborador.csv")
+    dim_area = pd.read_csv(DATA_DIR / "dim_area.csv")
+
+    # inner join: só colaboradores elegíveis (R10) entram em P1 — vw_score_colaborador
+    # tem score de todo mundo (81), mas só 72 são elegíveis, igual a respostas/.
+    p1 = pd.read_csv(DATA_DIR / "vw_score_colaborador.csv").merge(
+        dim_colaborador[dim_colaborador["flag_elegivel_r10"] == 1][
+            ["id_colaborador", "nome", "id_area", "id_gestor"]
+        ],
+        on="id_colaborador", how="inner",
+    )
+    p2 = pd.read_csv(DATA_DIR / "vw_score_area.csv").merge(
+        dim_area[["id_area", "nome", "id_area_pai", "nivel"]],
+        on="id_area", how="left",
+    )
+    p3 = pd.read_csv(DATA_DIR / "vw_score_gestor.csv").merge(
+        dim_colaborador[["id_colaborador", "nome"]].rename(columns={"id_colaborador": "id_gestor"}),
+        on="id_gestor", how="left",
+    )
+    n_total = len(dim_colaborador)
 
     n = len(p1)
     critico = p1[p1["score"] < 80].sort_values("score")
