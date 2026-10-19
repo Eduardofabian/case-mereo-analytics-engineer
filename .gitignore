@@ -37,11 +37,7 @@ Tarefas/
 material_original/
 
 # Dado derivado — saída reproduzível de etl/run_pipeline.py a partir do SQL Server.
-# Glob explícito (não */dados/*.csv), pra nunca arriscar alcançar respostas/,
-# que são os três CSVs exigidos pelo enunciado e não devem ser ignorados.
-# painel/dados/*.csv ignorado de proposito: alimenta so o .pbip local, o
-# entregavel do painel e o print/PDF, nao precisa estar versionado.
-painel/dados/*.csv
-# agente/dados/*.csv NAO e ignorado (ao contrario de painel/dados acima):
-# e o que torna o agente self-contained, sem depender do SQL Server local
-# pra rodar -- ver agente/README.md. Precisa ir versionado/zipado.
+# painel/dados/*.csv e agente/dados/*.csv SAO versionados de proposito: o
+# .pbip abre e o agente roda sem precisar do SQL Server local. Exceção:
+# vw_nota_meta.csv, que o export copia pras duas pastas mas só o agente usa.
+painel/dados/vw_nota_meta.csv

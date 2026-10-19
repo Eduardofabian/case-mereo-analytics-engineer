@@ -25,17 +25,17 @@ PERGUNTAS = [
 
 COMENTARIOS = {
     1: (
-        "Na primeira rodada essa pergunta falhou -- mas por um bug meu no roteiro de "
-        "teste, nao do agente: eu tinha escrito \"Gerencia\" sem o acento circunflexo "
-        "aqui no script, e a area no banco e \"Gerencia de Marketing\". ILIKE normaliza "
-        "maiusculas/minusculas mas nao remove acento, entao \"Gerencia\" nunca batia com "
-        "\"Gerencia\". O comportamento do agente diante da falha foi o certo mesmo assim: "
-        "nao achou, nao chutou pra area parecida, pediu confirmacao do nome -- o mesmo "
-        "padrao correto da pergunta 5, so que aqui o erro de origem era meu. Corrigi o "
-        "typo e a resposta ficou certa: score_direto = score_consolidado = 84,43 "
-        "(conferido direto no CSV), area sem subarea. O que fica como licao: resolucao "
-        "de nome por ILIKE e sensivel a acento, e isso nao estava documentado como "
-        "limitacao conhecida -- devia estar no README."
+        "Na primeira rodada essa pergunta falhou — mas por um bug meu no roteiro de "
+        "teste, não do agente: eu tinha escrito a pergunta sem o acento (\"Gerencia\"), "
+        "e a área no banco é \"Gerência de Marketing\", com acento. ILIKE ignora "
+        "maiúsculas/minúsculas, mas não ignora acento, então o nome sem acento não "
+        "encontrava a área. O comportamento do agente diante da falha foi o certo mesmo "
+        "assim: não achou, não chutou uma área parecida, pediu confirmação do nome — o "
+        "mesmo padrão correto da pergunta 5, só que aqui o erro de origem era meu. "
+        "Corrigi o roteiro e a resposta ficou certa: score_direto = score_consolidado = "
+        "84,43 (conferido direto no CSV), área sem subárea. Lição: a resolução de nome "
+        "por ILIKE é sensível a acento — registrado em \"Limitações conhecidas\" no "
+        "README, com a melhoria proposta (normalizar acento antes de comparar)."
     ),
     2: (
         "Acertou. Conferi contra os CSVs de forma independente: a Sofia Oliveira tem 12 "

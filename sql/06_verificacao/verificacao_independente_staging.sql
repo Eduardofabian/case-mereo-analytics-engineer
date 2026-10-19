@@ -3,7 +3,7 @@
 
    Recalcula P1/P2/P3 lendo APENAS staging.* (nenhuma view de intermediate/
    marts é usada no cálculo) e só no final compara com marts.*. Mesma lógica
-   do etl/verificacao_independente.py (que bate com os CSVs com diff 0.0000).
+   do etl/verificacao/verificacao_independente.py (que bate com os CSVs com diff 0.0000).
 
    Rodar o script inteiro no SSMS (Ctrl+E). Resultados:
      1) contagens de staging  2) resumo PASS/FAIL  3) divergências (vazio = ok)

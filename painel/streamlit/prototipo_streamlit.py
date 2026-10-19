@@ -18,7 +18,7 @@ dim_area) via merge do pandas -- nao ha CSV "_enriquecido" pre-gerado, pra
 nao depender de um passo manual fora do run_pipeline.py. Nada e recalculado
 - so leitura, merge e exibicao.
 
-Rodar: streamlit run painel/prototipo_streamlit.py
+Rodar: streamlit run painel/streamlit/prototipo_streamlit.py
 """
 from pathlib import Path
 

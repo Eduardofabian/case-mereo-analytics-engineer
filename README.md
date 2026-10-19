@@ -24,7 +24,33 @@ compartilhada com lançamento próprio) foram meu julgamento, documentado
 abaixo caso a caso — a IA ajudou a identificar o padrão e propor a regra,
 mas a decisão de qual regra aplicar foi minha.
 
-O mesmo processo se repetiu nas outras frentes do case: o protótipo HTML/Figma, os tropeços reais de Power BI documentados na seção **Painel — processo de decisão**, a arquitetura do agente (ferramentas fixas em vez de SQL livre, como a Parte 4 explica) e as três respostas da Parte 5 foram todos desenvolvidos com o Claude como par técnico — proposta de abordagem seguida de teste e crítica, não aceitação automática. Como artefato adicional de uso de IA, este repositório também inclui duas skills de auditoria específicas deste case (`skills/`), construídas para checar a entrega e o painel contra os critérios exatos do enunciado e contra o produto real da Mereo, não um checklist genérico.
+O mesmo processo se repetiu nas outras frentes do case: o protótipo HTML/Figma, os tropeços reais de Power BI documentados na seção **Painel — processo de decisão**, a arquitetura do agente (ferramentas fixas em vez de SQL livre, como a Parte 4 explica) e as três respostas da Parte 5 foram todos desenvolvidos com o Claude como par técnico — proposta de abordagem seguida de teste e crítica, não aceitação automática. Como artefato adicional de uso de IA, este repositório também inclui duas
+skills de auditoria específicas deste case (`skills/`) — detalhadas a seguir.
+
+### Skills de auditoria customizadas
+
+Já tinha duas skills genéricas de auditoria de hackathon disponíveis, mas
+elas avaliam contra critérios genéricos de datathon — não contra os 6
+critérios e pesos exatos deste enunciado (30/20/20/15/10/5), nem contra
+as regras de negócio específicas (R1-R11) ou o padrão visual real do
+produto Mereo (semáforo, matriz Direto/Consolidado). Usar a skill
+genérica teria produzido uma auditoria superficial, sem citar números
+reais do projeto nem confrontar a Parte 1 com uma reimplementação
+independente.
+
+Por isso criei duas skills específicas deste case:
+
+- `auditoria-entrega-mereo`: lê o repositório inteiro, reexecuta
+  `verificacao_independente.py` e compara número a número contra
+  `respostas/`, e audita contra os 6 critérios e pesos exatos do
+  enunciado.
+- `auditoria-dashboard-mereo`: audita fidelidade do painel ao star
+  schema e ao padrão visual real do produto Mereo.
+
+Rodei as duas antes da entrega, apliquei as correções de maior impacto
+na nota e re-rodei para confirmar. O relatório gerado em
+`_review/entrega_audit_20261019.md` fica versionado como evidência do
+processo.
 
 ## Estrutura do repositório
 
@@ -64,7 +90,8 @@ painel/
     powerbi_construcao_painel.md    -- construção completa: modelo, paleta/tipografia, DAX e visual card a card
                                        (como ficou de fato no .pbip, com o que divergiu do plano original)
     assets/                         -- imagem de fundo e logo usados no import do Figma pro Power BI
-  dados/                            -- CSVs que o Power BI consome por caminho absoluto (não mover)
+  dados/                            -- CSVs que o Power BI consome por caminho absoluto (não mover);
+                                       versionados de propósito, pra abrir o .pbip sem rodar o pipeline
   entrega/Mereo_Case_Dashboard_Pwbi.png  -- print final do painel (entregável da Parte 3)
   analise_resultados.md             -- interpretação dos resultados, insumo comum às 3 etapas
   diagramas/Mereo_Grupo_Aurora.{sql,svg,png}  -- diagrama ER do modelo (star schema que o painel consome)
@@ -158,7 +185,22 @@ porque o enunciado não cobre o caso exato da base:
   hardcoded para um id específico, então qualquer dado novo com o mesmo
   problema cai no mesmo tratamento automaticamente.
 - **Peso negativo:** nenhuma regra prevê peso negativo (inverteria o peso
-  da meta no cálculo). Decisão: `peso_efetivo = ABS(peso)`.
+  da meta no cálculo). Decisão: `peso_efetivo = ABS(peso)`. Alternativa
+  considerada: excluir a meta, no espírito de R8 (tratar como meta sem
+  peso válido). Escolhi ABS porque os dados apontam para erro de sinal na
+  importação, não para regra de negócio: a meta 5286 ("Inadimplência (%)",
+  colaborador 174) é o único peso negativo entre as 376 metas; as 4 metas
+  do 174 têm pesos 20, -5, 50 e 25 — somam 90 com o sinal e exatamente 100
+  com +5; e a mesma meta "Inadimplência (%)" aparece para outros 8
+  colaboradores em 2025 (168, 169, 172, 176, 178, 179, 180, 181), todos com
+  peso positivo (30, 20, 20, 10, 35, 75, 50, 25). A soma 100 por
+  colaborador é o padrão dominante, não universal: 75 dos 81 colaboradores
+  de 2025 somam 100 (contando o 174 com ABS) e os 30 de 2024 também; os 6
+  restantes somam entre 85 e 120 (ver achado de soma de peso ≠ 100 abaixo).
+  Por isso trato como erro provável, não comprovado. Impacto medido
+  (`verificacao_independente.py` com a meta 5286 excluída): colaborador 174
+  vai de 51.42 (ABS, entregue) para 49.14 — 2.28 pontos —, área 11 varia
+  0.23 e o gestor 171 (top 1 de P3) 0.25; top 3/bottom 3 de P3 não mudam.
 - **Lançamento em mês posterior ao desligamento:** o enunciado não pede
   exclusão desses lançamentos, e R3/R8 não cobrem esse caso — só olham
   `nao_se_aplica`/`previsto`/`realizado`. Decisão: manter literal no
@@ -208,7 +250,7 @@ a tabela abaixo e com os achados já documentados.
 | Lançamento em mês pós-desligamento, colaborador elegível (R10)                             | 24                             | Mantido literal no cálculo; impacto medido (ver sensibilidade abaixo)                                             |
 | Lançamento em mês pós-desligamento, colaborador não elegível                              | 138                            | Não afeta P1/P2/P3 (colaborador já sai por R10), documentado por completude                                      |
 | Meta com denominador=0 (meta 5094, "Leads gerados", colaborador 125, previsto=0 o ano inteiro) | 1                              | Extensão de R8 — sem nota                                                                                        |
-| Meta com peso negativo (meta 5286, "Inadimplência (%)", colaborador 174)                      | 1                              | `peso_efetivo = ABS(peso)`                                                                                       |
+| Meta com peso negativo (meta 5286, "Inadimplência (%)", colaborador 174)                      | 1                              | `peso_efetivo = ABS(peso)` — provável erro de sinal; alternativa e impacto (2.28 pts no colab. 174) acima       |
 | Meta Compartilhada com lançamento mensal próprio (ids 5066, 5156, 5219, 5231, 5278)          | 60 registros                   | Ignorado por construção (ver acima); confirmado 0 vazamento no cálculo                                          |
 | Meta Individual sem nenhum lançamento mensal (ids 5014, 5063, 5146, 5188)                     | 4                              | R8 cobre — sem nota, fora do score                                                                                |
 | Colaborador com soma de peso das metas != 100 (varia entre 85 e 120)                           | 7                              | R9 normaliza por soma de peso, não quebra o cálculo — só não assumir 100 no Dashboard/Agente                  |
@@ -289,7 +331,7 @@ A discussão numérica anterior que citava 0.05 / 1.41 / 0.99 corresponde
 **Universo do gestor:** as comparações usam os 9 gestores oficiais de P3
 (ativos em 31/12/2025 e ≥3 subordinados diretos elegíveis). Uma checagem
 ad hoc anterior usou 10 por omitir `flag_ativo_fim_2025 = 1`; foi refeita
-com o filtro correto (`etl/sensibilidade_matriz.py`).
+com o filtro correto (`etl/verificacao/sensibilidade_matriz.py`).
 
 A diluição pela média (de todos os elegíveis da área, ou dos subordinados
 diretos do gestor) absorve o desvio pontual do colaborador isolado.
@@ -299,7 +341,7 @@ severa — não há necessidade de reportar uma segunda versão de P2/P3.
 ## Validação de P1/P2/P3
 
 - **Recomputação independente (pandas, sem usar nenhuma view/SQL do
-  projeto):** `etl/verificacao_independente.py` reimplementa R1–R11 direto
+  projeto):** `etl/verificacao/verificacao_independente.py` reimplementa R1–R11 direto
   do SQLite original e compara com os três CSVs de `respostas/`. Resultado:
   P1 (72 linhas), P2 (11) e P3 (6) idênticos, diferença máxima 0.0000, e
   universo de P3 = 9 gestores. Foi a primeira confirmação que não vinha de
@@ -323,6 +365,15 @@ severa — não há necessidade de reportar uma segunda versão de P2/P3.
   caso-limite de exatamente 3 subordinados.
 
 ## Painel — processo de decisão
+
+**O que o painel mostra e por quê.** A diretoria precisa de três respostas
+em uma página: como foi o ciclo (score médio, mediana e elegíveis), onde
+está o risco (distribuição por faixa em semáforo — crítico <80, 80–100,
+≥100 — e a lista nominal da zona crítica), e quem puxa o resultado pra
+cima ou pra baixo (área Direto vs Consolidado, Top 5 colaboradores, Top 3 /
+Bottom 3 gestores de P3). Ficou de fora o que exigiria contexto que um
+painel não dá — ex.: destacar a pior gestora, quando metade do efeito vem
+de um único desligamento (§2 de `painel/analise_resultados.md`).
 
 O enunciado pede só um painel de uma página, em qualquer ferramenta, com
 PDF/print e código-fonte se possível (`painel/entrega/Mereo_Case_Dashboard_Pwbi.png`
@@ -544,7 +595,7 @@ python etl/verificacao/diag_qualidade.py
 
 ### 1. O Grupo Aurora quer enviar os dados de colaboradores todos os dias via API. Como você desenharia essa integração e o pipeline até o Data Warehouse?
 
-O primeiro cuidado é separar quem recebe o dado de quem valida e carrega: um endpoint de API com contrato formal contendo schema versionado, autenticação e idempotência por chave de negócio recebe o payload diário e grava no Azure Blob Storage, o que permite reprocessar um lote problemático sem pedir reenvio. O evento de blob criado dispara uma Azure Function que valida schema e regras básicas, separando o que passa do que vai para quarentena com motivo registrado. A carga em staging no SQL Server precisa ser merge/upsert, porque dado do mundo real repete e corrige registros com frequência maior do que se espera. Dali em diante, o pipeline segue em camadas versionadas, com log de execução e alerta por etapa. Neste projeto, essa última parte já está validada na prática: staging alimenta as views de intermediate e marts via stored procedure ou task agendada.
+O primeiro cuidado é separar quem recebe o dado de quem valida e carrega: um endpoint de API com contrato formal contendo schema versionado, autenticação e idempotência por chave de negócio recebe o payload diário e grava no Azure Blob Storage, o que permite reprocessar um lote problemático sem pedir reenvio. O evento de blob criado dispara uma Azure Function que valida schema e regras básicas, separando o que passa do que vai para quarentena com motivo registrado. A carga em staging no SQL Server precisa ser merge/upsert, porque dado do mundo real repete e corrige registros com frequência maior do que se espera. Dali em diante, o pipeline segue em camadas versionadas, com log de execução e alerta por etapa. Neste projeto essa parte já roda: `etl/run_pipeline.py` leva staging a intermediate e marts (hoje manual; em produção, disparado pela Function ou por um agendador), e as checagens de `diag_qualidade.py` viram as regras da Function de validação.
 
 ### 2. O agente da Parte 4 entrou em produção. Como você saberia que ele está respondendo errado?
 
@@ -552,7 +603,7 @@ Sem alguém testando cada resposta, o erro raramente aparece como "o agente diss
 
 ### 3. O RH diz que o score de uma área no painel não bate com a planilha deles. Por onde você começa?
 
-Antes de abrir qualquer query, eu faria perguntas para a pessoa: quem mantém essa planilha, com que frequência atualiza, e se ela segue a mesma definição de regra que o painel usa ou nasceu de outro processo, talvez mais antigo, com um critério nunca documentado formalmente. Divergência não significa que o painel está certo. Pode ser o contrário: a planilha reflete um ajuste manual que o RH faz há meses e que virou prática sem virar regra escrita, e nesse caso o problema é de negócio. Presumir que o sistema é a fonte de verdade antes dessa conversa é um tipo de erro; depois eu partiria para a checagem técnica. Neste projeto, essa checagem já está pronta: rodo o `verificacao_independente.py`, que reimplementa as regras em pandas direto do SQLite original, sem usar nenhuma view do projeto, e compara contra os três CSVs de resposta, isolando se a causa é regra de cálculo ou dado de origem.
+Antes de abrir qualquer query, eu faria perguntas para a pessoa: quem mantém essa planilha, com que frequência atualiza, e se ela segue a mesma definição de regra que o painel usa ou nasceu de outro processo, com um critério nunca documentado. Divergência não significa que o painel está certo. Pode ser o contrário: a planilha reflete um ajuste manual que o RH faz há meses e que virou prática sem virar regra escrita, e nesse caso o problema é de negócio. Presumir que o sistema é a fonte de verdade antes dessa conversa é um tipo de erro; depois eu partiria para a checagem técnica. Aqui essa checagem já existe: `verificacao_independente.py` reimplementa as regras em pandas direto do SQLite, sem nenhuma view do projeto, e isola se a causa é regra de cálculo ou dado de origem. Suspeitas mais prováveis neste case: Consolidado vs. Direto (R11), planilha incluindo os 9 colaboradores que R10 exclui, ou média ponderada por peso no lugar da média simples da área.
 
 
 ## Limitações conhecidas

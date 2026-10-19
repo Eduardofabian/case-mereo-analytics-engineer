@@ -1,5 +1,5 @@
-"""Matriz de sensibilidade pós-desligamento (4 definições). Uso: python etl/sensibilidade_matriz.py <raiz_do_projeto>
-Depende de etl/verificacao_independente.py (mesma pasta)."""
+"""Matriz de sensibilidade pós-desligamento (4 definições). Uso: python etl/verificacao/sensibilidade_matriz.py <raiz_do_projeto>
+Depende de etl/verificacao/verificacao_independente.py (mesma pasta)."""
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))

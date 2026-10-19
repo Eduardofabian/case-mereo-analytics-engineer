@@ -2,7 +2,7 @@
 verificar_ambiente.py — Case Mereo (Grupo Aurora)
 Checa se o ambiente tem o que falta pra rodar cada parte do projeto: o
 pipeline SQL (etl/run_pipeline.py), o agente de IA (agente/) e o protótipo
-de painel (painel/prototipo_streamlit.py). Não instala nada sozinho (ODBC
+de painel (painel/streamlit/prototipo_streamlit.py). Não instala nada sozinho (ODBC
 driver é instalador do Windows, não pip; e instalar pacote sem perguntar é
 ruim num ambiente que pode ser compartilhado) — só diz o que falta e o
 comando exato pra resolver.
@@ -141,7 +141,7 @@ def checa_agente():
 
 
 def checa_painel():
-    print("\n== Pacotes Python — painel, painel/prototipo_streamlit.py (informativo) ==")
+    print("\n== Pacotes Python — painel, painel/streamlit/prototipo_streamlit.py (informativo) ==")
     try:
         m = importlib.import_module("streamlit")
         versao = getattr(m, "__version__", "?")

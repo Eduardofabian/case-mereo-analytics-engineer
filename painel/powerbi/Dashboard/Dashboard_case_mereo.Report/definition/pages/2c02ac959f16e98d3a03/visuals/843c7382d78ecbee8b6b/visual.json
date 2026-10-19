@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
   "name": "843c7382d78ecbee8b6b",
   "position": {
-    "x": 50,
-    "y": 437.14285714285717,
+    "x": 50.541871921182263,
+    "y": 429.60591133004925,
     "z": 9000,
-    "height": 251.42857142857144,
-    "width": 898.57142857142867,
+    "height": 271.33004926108373,
+    "width": 897.78325123152706,
     "tabOrder": 9000
   },
   "visual": {
@@ -27,8 +27,9 @@
                 }
               },
               "queryRef": "dim_area.Area Nivel 0",
-              "nativeQueryRef": "Area Nivel 0",
-              "active": true
+              "nativeQueryRef": "Area",
+              "active": true,
+              "displayName": "Area"
             },
             {
               "field": {
@@ -76,7 +77,8 @@
                 }
               },
               "queryRef": "Medidas.Score Direto (Matriz)",
-              "nativeQueryRef": "Score Direto (Matriz)"
+              "nativeQueryRef": "Score Direto",
+              "displayName": "Score Direto"
             },
             {
               "field": {
@@ -90,7 +92,8 @@
                 }
               },
               "queryRef": "Medidas.Score Consolidado Exibir (Matriz)",
-              "nativeQueryRef": "Score Consolidado Exibir (Matriz)"
+              "nativeQueryRef": "Score Consolidado",
+              "displayName": "Score Consolidado"
             }
           ]
         }
@@ -108,7 +111,7 @@
                 "Property": "Area Nivel 0"
               }
             },
-            "direction": "Ascending"
+            "direction": "Descending"
           },
           {
             "field": {
@@ -121,7 +124,7 @@
                 "Property": "Area Nivel 1"
               }
             },
-            "direction": "Ascending"
+            "direction": "Descending"
           },
           {
             "field": {
@@ -134,7 +137,7 @@
                 "Property": "Area Nivel 2"
               }
             },
-            "direction": "Ascending"
+            "direction": "Descending"
           }
         ]
       }
@@ -212,16 +215,6 @@
                     }
                   ],
                   "isToggled": true
-                },
-                {
-                  "identityValues": [
-                    {
-                      "Literal": {
-                        "Value": "'Gerência de Vendas'"
-                      }
-                    }
-                  ],
-                  "isToggled": true
                 }
               ]
             },
@@ -233,19 +226,7 @@
                   }
                 }
               ],
-              "isToggled": true,
-              "children": [
-                {
-                  "identityValues": [
-                    {
-                      "Literal": {
-                        "Value": "'Gerência de Logística'"
-                      }
-                    }
-                  ],
-                  "isToggled": true
-                }
-              ]
+              "isToggled": true
             },
             {
               "identityValues": [
@@ -343,7 +324,7 @@
             "perRowLevel": {
               "expr": {
                 "Literal": {
-                  "Value": "false"
+                  "Value": "true"
                 }
               }
             },
@@ -360,7 +341,56 @@
                   "Value": "true"
                 }
               }
+            },
+            "rowSubtotalsPosition": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Top'"
+                }
+              }
             }
+          }
+        },
+        {
+          "properties": {
+            "levelSubtotalEnabled": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "dim_area.Area Nivel 0"
+          }
+        },
+        {
+          "properties": {
+            "levelSubtotalEnabled": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "dim_area.Area Nivel 1"
+          }
+        },
+        {
+          "properties": {
+            "levelSubtotalEnabled": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "dim_area.Area Nivel 2"
           }
         }
       ],
@@ -437,10 +467,77 @@
                   "Value": "true"
                 }
               }
+            },
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
             }
           },
           "selector": {
             "metadata": "Medidas.Score Direto (Matriz)"
+          }
+        },
+        {
+          "properties": {
+            "styleSubtotals": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleValues": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Medidas.Score Consolidado Exibir (Matriz)"
+          }
+        }
+      ],
+      "columnTotal": [
+        {
+          "properties": {
+            "applyToHeaders": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "rowTotal": [
+        {
+          "properties": {
+            "applyToHeaders": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "blankRows": [
+        {
+          "properties": {
+            "showBlankRows": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
           }
         }
       ]
@@ -769,6 +866,7 @@
       },
       {
         "name": "53fa87f898ab2c698176",
+        "displayName": "Area",
         "field": {
           "Column": {
             "Expression": {

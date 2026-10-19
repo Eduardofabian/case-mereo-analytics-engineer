@@ -197,7 +197,7 @@ def listar_colaboradores_time_por_score(
         SELECT dc.nome, vsc.score, dc.flag_elegivel_r10
         FROM dim_colaborador dc
         JOIN vw_score_colaborador vsc ON vsc.id_colaborador = dc.id_colaborador
-        WHERE dc.id_gestor = ? AND vsc.score {op} ?
+        WHERE dc.id_gestor = ? AND dc.flag_elegivel_r10 = 1 AND vsc.score {op} ?
         ORDER BY vsc.score
         """,
         [r.id, limite],

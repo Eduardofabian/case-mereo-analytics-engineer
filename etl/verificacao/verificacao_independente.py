@@ -6,7 +6,7 @@ Reimplementa R1-R11 do enunciado em pandas, direto do SQLite original
 Depois compara com respostas/*.csv e roda a sensibilidade (pós-desligamento)
 nos três níveis, usando os filtros oficiais de P3.
 
-Uso: python etl/verificacao_independente.py [raiz_do_projeto]  (sem argumento, usa a raiz do repo)
+Uso: python etl/verificacao/verificacao_independente.py [raiz_do_projeto]  (sem argumento, usa a raiz do repo)
 """
 import sqlite3
 import sys

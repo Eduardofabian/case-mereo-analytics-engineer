@@ -52,6 +52,9 @@ Arquivos:
 - `agent.py` -- define o `Agent` do Pydantic AI, registra as 6 tools via
   `@agent.tool`, e o system prompt com as regras de como reagir a cada
   status (nao_encontrado, multiplos_candidatos, sem_score, etc.).
+  `sem_score` e defensivo (colaborador de dado novo sem nenhuma meta com
+  nota): nao e exercitado pelos dados atuais -- zero colaboradores ficam
+  sem score em `vw_score_colaborador`.
 - `run_perguntas.py` -- roda as 5 perguntas obrigatorias do case e grava
   `respostas.md`, com a resposta real da rodada + um comentario fixo
   (dict `COMENTARIOS`, embutido no script pra nao se perder a cada rerun,
@@ -75,7 +78,9 @@ Arquivos:
 ## Decisoes de design
 
 - **"Time de um gestor" = `id_gestor` direto** (campo da tabela
-  colaborador), nao hierarquia de area.
+  colaborador), nao hierarquia de area, e so subordinados elegiveis (R10)
+  -- os 9 nao elegiveis tem score calculado em `vw_score_colaborador`,
+  mas nao fazem parte dos resultados do ciclo.
 - **`score_area` sempre devolve `score_direto` e `score_consolidado`**
   juntos, nunca um default escolhido pelo codigo -- quem decide o que
   destacar na resposta final e o prompt do agente, caso a caso.
@@ -131,9 +136,10 @@ Nao precisa de SQL Server, driver ODBC nem autenticacao Windows --
 so Python 3.11+, as dependencias do `requirements.txt` e os CSVs de
 `dados/` (ja inclusos nesta entrega).
 
-Se `agent.py` reclamar do nome do modelo (`anthropic:claude-sonnet-5`),
-defina a env var `MEREO_AGENT_MODEL` com o nome correto pra versao do
-pydantic-ai instalada -- nomenclatura de modelo muda com frequencia.
+Modelo default: `anthropic:claude-sonnet-5`. Pra usar outro, defina a
+env var `MEREO_AGENT_MODEL` no formato `anthropic:<id-do-modelo>` (ex.:
+`$env:MEREO_AGENT_MODEL="anthropic:claude-opus-5-5"`) -- nomenclatura de
+modelo muda com frequencia.
 
 ## Limitacao conhecida: ninguem alem de mim roda isso com a chave default
 
