@@ -100,6 +100,13 @@
                   "Value": "true"
                 }
               }
+            },
+            "showTitle": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
             }
           }
         }
@@ -614,8 +621,53 @@
             }
           }
         }
+      ],
+      "visualTooltip": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
       ]
     },
     "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "b15edb8ae3848a851279",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "vw_score_colaborador"
+              }
+            },
+            "Property": "Qtd Faixa Score"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "dd735946ec9d063f060c",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "vw_score_colaborador"
+              }
+            },
+            "Property": "Faixa Score"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
   }
 }

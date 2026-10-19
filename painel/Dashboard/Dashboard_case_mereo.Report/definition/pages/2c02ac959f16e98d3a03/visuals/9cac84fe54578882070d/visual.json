@@ -3,11 +3,11 @@
   "name": "9cac84fe54578882070d",
   "position": {
     "x": 977.14285714285722,
-    "y": 792.85714285714289,
-    "z": 13004,
-    "height": 257.14285714285717,
+    "y": 761.42857142857144,
+    "z": 13000,
+    "height": 288.57142857142861,
     "width": 890,
-    "tabOrder": 13004
+    "tabOrder": 13000
   },
   "visual": {
     "visualType": "barChart",
@@ -136,6 +136,129 @@
                 }
               }
             }
+          }
+        },
+        {
+          "properties": {
+            "fill": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#FF5C39'"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "selector": {
+            "data": [
+              {
+                "scopeId": {
+                  "Comparison": {
+                    "ComparisonKind": 0,
+                    "Left": {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Entity": "dim_area"
+                          }
+                        },
+                        "Property": "nome"
+                      }
+                    },
+                    "Right": {
+                      "Literal": {
+                        "Value": "'Gerência de Controladoria'"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "properties": {
+            "fill": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#FFBF39'"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "selector": {
+            "data": [
+              {
+                "scopeId": {
+                  "Comparison": {
+                    "ComparisonKind": 0,
+                    "Left": {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Entity": "dim_area"
+                          }
+                        },
+                        "Property": "nome"
+                      }
+                    },
+                    "Right": {
+                      "Literal": {
+                        "Value": "'Gerência de Logística'"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "properties": {
+            "fill": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#FF3979'"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "selector": {
+            "data": [
+              {
+                "scopeId": {
+                  "Comparison": {
+                    "ComparisonKind": 0,
+                    "Left": {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Entity": "dim_area"
+                          }
+                        },
+                        "Property": "nome"
+                      }
+                    },
+                    "Right": {
+                      "Literal": {
+                        "Value": "'Gerência de Qualidade'"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
           }
         }
       ],

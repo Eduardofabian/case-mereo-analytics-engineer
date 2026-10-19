@@ -31,7 +31,7 @@
           "expanded": {
             "expr": {
               "Literal": {
-                "Value": "true"
+                "Value": "false"
               }
             }
           }
@@ -56,13 +56,8 @@
       "type": "RegisteredResources",
       "items": [
         {
-          "name": "Resultado_do_Ciclo_2025___FUND3785782531239843.png",
-          "path": "Resultado_do_Ciclo_2025___FUND3785782531239843.png",
-          "type": "Image"
-        },
-        {
-          "name": "Resultado_do_Ciclo_2025___FUND5791697720953127.png",
-          "path": "Resultado_do_Ciclo_2025___FUND5791697720953127.png",
+          "name": "Resultado_do_Ciclo_2025___FUND30214560627675424.png",
+          "path": "Resultado_do_Ciclo_2025___FUND30214560627675424.png",
           "type": "Image"
         }
       ]

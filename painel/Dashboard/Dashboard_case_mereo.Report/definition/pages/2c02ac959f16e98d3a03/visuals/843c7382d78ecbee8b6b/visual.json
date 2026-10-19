@@ -4,10 +4,10 @@
   "position": {
     "x": 50,
     "y": 437.14285714285717,
-    "z": 13000,
+    "z": 9000,
     "height": 251.42857142857144,
     "width": 898.57142857142867,
-    "tabOrder": 13000
+    "tabOrder": 9000
   },
   "visual": {
     "visualType": "pivotTable",
@@ -766,6 +766,76 @@
           ]
         },
         "howCreated": "User"
+      },
+      {
+        "name": "53fa87f898ab2c698176",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_area"
+              }
+            },
+            "Property": "Area Nivel 0"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "299719dd5ea0f39bba68",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_area"
+              }
+            },
+            "Property": "Area Nivel 1"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "e4fdba1d5ff41dc40fcd",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_area"
+              }
+            },
+            "Property": "Area Nivel 2"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "2c9c3ea8f83ee11b116f",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Medidas"
+              }
+            },
+            "Property": "Score Direto (Matriz)"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "104769a6725c038c7cbe",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Medidas"
+              }
+            },
+            "Property": "Score Consolidado Exibir (Matriz)"
+          }
+        },
+        "type": "Advanced"
       }
     ]
   }
