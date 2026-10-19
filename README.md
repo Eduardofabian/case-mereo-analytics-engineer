@@ -357,6 +357,17 @@ severa; não há necessidade de reportar uma segunda versão de P2/P3.
   P1 (72 linhas), P2 (11) e P3 (6) idênticos, diferença máxima 0.0000, e
   universo de P3 = 9 gestores. Foi a primeira confirmação que não vinha de
   auto-relato do pipeline SQL.
+- **Recomputação independente em T-SQL contra `staging` (SQL Server,
+  SSMS):** `sql/06_verificacao/verificacao_independente_staging.sql`
+  recalcula P1/P2/P3 lendo só `staging.*` (nenhuma view de
+  intermediate/marts entra na conta) e compara com `marts.*` no final.
+  Rodado após a reorganização final de pastas, contra o banco atual:
+  contagens batem (`staging.area`=11, `staging.colaborador`=81,
+  `staging.meta`=376, `staging.meta_valor_mensal`=3633), os três níveis
+  dão PASS (72 colaboradores elegíveis, 11 áreas, 9 gestores válidos) e a
+  diferença máxima fica na casa de 1e-14, erro de arredondamento de ponto
+  flutuante, não divergência real; as três tabelas de divergência vêm
+  vazias. Segunda confirmação independente, desta vez em T-SQL puro.
 - **P1 (score por colaborador):** 72 de 81 colaboradores elegíveis (R10),
   scores no intervalo [0, 120] como R6 define. Recalculei a média ponderada
   na mão para os 5 scores mais baixos (18.17 a 54.85); bateram exatos com
@@ -633,10 +644,6 @@ Antes de abrir qualquer query, eu faria perguntas para a pessoa: quem mantém es
   fornecido no enunciado (`.db`/`.xlsx`), não código produzido neste case;
   mantido fora do git por ser volumoso e já estar anexado ao material
   original. O arquivo continua presente no disco, só não é rastreado.
-- **`sql/06_verificacao/verificacao_independente_staging.sql`** não foi
-  revisado na rodada final de reorganização; só o comentário de caminho
-  mudou em `0daa6c6`. Não confirmado se ainda reflete a estrutura atual
-  de `staging`.
 - **UI do protótipo Streamlit não validada visualmente:** a correção do
   merge em runtime foi testada só na função de carga de dados,
   isoladamente; a tela em si nunca foi reaberta e conferida depois do
