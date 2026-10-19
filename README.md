@@ -4,22 +4,12 @@ Resultado de cada colaborador, área e gestor do ciclo 2025, a partir da base
 `case_metas.db` fornecida, com os problemas de qualidade da base mapeados e
 as decisões de tratamento justificadas.
 
-## Status atual
-
-| Parte | Status |
-|---|---|
-| Parte 1 — SQL (P1/P2/P3) | **Concluída e validada** contra o banco real |
-| Problemas de qualidade | **Concluído** — 38 checagens sistemáticas + achados confirmados abaixo |
-| Painel (`painel/`) | Pendente |
-| Agente de IA (`agente/`) | Pendente |
-| Perguntas abertas | Pendente |
-
 ## Uso de IA neste case
 
 Usei o Claude (Anthropic) como par técnico durante todo o desenvolvimento:
 modelagem das camadas SQL (staging/intermediate/marts), tradução das regras
 de negócio do enunciado em T-SQL, geração da bateria de checagens de
-qualidade em `etl/diag_qualidade.py`, e revisão crítica dos resultados —
+qualidade em `etl/verificacao/diag_qualidade.py`, e revisão crítica dos resultados —
 cada número de P1/P2/P3 foi conferido manualmente (recálculo de média
 ponderada na mão, verificação de hierarquia de área contra `staging.area`,
 contagem de gestores válidos, simulação de sensibilidade excluindo os
@@ -49,21 +39,38 @@ respostas/
   p1_score_colaborador.csv
   p2_score_area.csv
   p3_gestores.csv
-qualidade/
-  relatorio_diagnostico.md  -- 38 checagens sistemáticas rodadas contra o banco
-  achados_qualidade_chat1.md -- achados da primeira varredura (Python/pandas), ver nota abaixo
 etl/
   extract_load.py           -- carga de staging.* a partir do SQLite
-  diag_qualidade.py         -- gera qualidade/relatorio_diagnostico.md
+  export_marts.py           -- exporta marts.* para CSV (painel/dados/, agente/dados/)
   export_respostas.py       -- roda as 3 queries de P1/P2/P3 e exporta CSV (script correto)
-  verificacao_independente.py -- recomputa P1/P2/P3 em pandas direto do SQLite e compara com os CSVs
-  sensibilidade_matriz.py   -- sensibilidade pós-desligamento em 4 definições (colaborador/área/gestor)
-diagramas/
-  Mereo_Grupo_Aurora.{sql,svg,png}  -- diagrama ER do modelo
+  run_pipeline.py           -- entrypoint: staging -> intermediate -> marts -> export, ponta a ponta
+  verificacao/
+    diag_qualidade.py         -- gera verificacao/relatorio_diagnostico.md
+    relatorio_diagnostico.md  -- 38 checagens sistemáticas rodadas contra o banco
+    achados_qualidade_chat1.md -- achados da primeira varredura (Python/pandas), ver nota abaixo
+    verificacao_independente.py -- recomputa P1/P2/P3 em pandas direto do SQLite e compara com os CSVs
+    sensibilidade_matriz.py   -- sensibilidade pós-desligamento em 4 definições (colaborador/área/gestor)
 material_original/
   ENUNCIADO.pdf, ENUNCIADO.docx, dados/  -- material recebido, como veio
-painel/                    -- pendente
-agente/                    -- pendente
+painel/
+  streamlit/prototipo_streamlit.py  -- protótipo 1: 3 layouts, só pra decidir ESCOPO (conteúdo)
+  html/painel_mereo_final.html      -- protótipo 2: mockup fixo 1280x720, decidir APARÊNCIA (ponte pro Figma)
+  powerbi/                          -- entrega final
+    Dashboard/Dashboard_case_mereo.pbip  -- projeto Power BI (formato .pbip, versionável)
+    powerbi_construcao_painel.md    -- construção completa: modelo, paleta/tipografia, DAX e visual card a card
+                                       (como ficou de fato no .pbip, com o que divergiu do plano original)
+    assets/                         -- imagem de fundo e logo usados no import do Figma pro Power BI
+  dados/                            -- CSVs que o Power BI consome por caminho absoluto (não mover)
+  entrega/Mereo_Case_Dashboard_Pwbi.png  -- print final do painel (entregável da Parte 3)
+  analise_resultados.md             -- interpretação dos resultados, insumo comum às 3 etapas
+  diagramas/Mereo_Grupo_Aurora.{sql,svg,png}  -- diagrama ER do modelo (star schema que o painel consome)
+agente/                    -- agente de IA (Parte 4, ver seção própria abaixo)
+  db.py                    -- conexão DuckDB singleton + resolução de nome (ILIKE, 3 casos)
+  tools.py                 -- as 6 consultas fixas e parametrizadas
+  agent.py                 -- Agent do Pydantic AI, registra as 6 tools, system prompt
+  run_perguntas.py         -- roda as 5 perguntas obrigatórias, grava respostas.md
+  respostas.md             -- as 5 respostas reais + comentário de acerto/erro/melhoria
+  dados/                   -- 8 CSVs (marts.*), tornam o agente self-contained, sem SQL Server
 ```
 
 **Nota histórica — `etl/load.py` (removido):** o repositório teve, numa fase
@@ -76,7 +83,7 @@ escreveria num schema `dbo.stg_*` desconectado do pipeline validado em
 `staging/intermediate/marts`. Removido do repositório; `extract_load.py` é
 e sempre foi o script correto para esse passo (carga de `staging.*`).
 
-**Nota sobre `qualidade/achados_qualidade_chat1.md` vs `qualidade/relatorio_diagnostico.md`:**
+**Nota sobre `etl/verificacao/achados_qualidade_chat1.md` vs `etl/verificacao/relatorio_diagnostico.md`:**
 o primeiro foi gerado numa fase inicial, validado em Python/pandas direto
 sobre os CSVs, sem rodar contra o SQL Server de fato (diz isso explicitamente
 no próprio arquivo). O segundo é uma bateria de 38 checagens sistemáticas
@@ -159,18 +166,18 @@ confere: `duplicado_perdedor`=45, `lancamento_pos_desligamento`=162 (=24
 elegíveis + 138 não elegíveis), `previsto_ou_realizado_nulo`=43 — bate com
 a tabela abaixo e com os achados já documentados.
 
-| Achado | Qtd | Decisão |
-|---|---|---|
-| Lançamento duplicado (id_meta, mês) | 45 pares (90 registros brutos) | R2: mantido o de `data_lancamento` mais recente |
-| `nao_se_aplica=0` mas previsto/realizado nulo | 43 | R3 já exclui do cálculo |
-| Lançamento em mês pós-desligamento, colaborador elegível (R10) | 24 | Mantido literal no cálculo; impacto medido (ver sensibilidade abaixo) |
-| Lançamento em mês pós-desligamento, colaborador não elegível | 138 | Não afeta P1/P2/P3 (colaborador já sai por R10), documentado por completude |
-| Meta com denominador=0 (meta 5094, "Leads gerados", colaborador 125, previsto=0 o ano inteiro) | 1 | Extensão de R8 — sem nota |
-| Meta com peso negativo (meta 5286, "Inadimplência (%)", colaborador 174) | 1 | `peso_efetivo = ABS(peso)` |
-| Meta Compartilhada com lançamento mensal próprio (ids 5066, 5156, 5219, 5231, 5278) | 60 registros | Ignorado por construção (ver acima); confirmado 0 vazamento no cálculo |
-| Meta Individual sem nenhum lançamento mensal (ids 5014, 5063, 5146, 5188) | 4 | R8 cobre — sem nota, fora do score |
-| Colaborador com soma de peso das metas != 100 (varia entre 85 e 120) | 7 | R9 normaliza por soma de peso, não quebra o cálculo — só não assumir 100 no Dashboard/Agente |
-| `polaridade`/`tipo_acumulacao` nulos na própria linha de meta Compartilhada | presente | Esperado — R7 resolve via `COALESCE` com a referência, o valor próprio nunca é usado quando é Compartilhada |
+| Achado                                                                                         | Qtd                            | Decisão                                                                                                           |
+| ---------------------------------------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| Lançamento duplicado (id_meta, mês)                                                          | 45 pares (90 registros brutos) | R2: mantido o de `data_lancamento` mais recente                                                                  |
+| `nao_se_aplica=0` mas previsto/realizado nulo                                                | 43                             | R3 já exclui do cálculo                                                                                          |
+| Lançamento em mês pós-desligamento, colaborador elegível (R10)                             | 24                             | Mantido literal no cálculo; impacto medido (ver sensibilidade abaixo)                                             |
+| Lançamento em mês pós-desligamento, colaborador não elegível                              | 138                            | Não afeta P1/P2/P3 (colaborador já sai por R10), documentado por completude                                      |
+| Meta com denominador=0 (meta 5094, "Leads gerados", colaborador 125, previsto=0 o ano inteiro) | 1                              | Extensão de R8 — sem nota                                                                                        |
+| Meta com peso negativo (meta 5286, "Inadimplência (%)", colaborador 174)                      | 1                              | `peso_efetivo = ABS(peso)`                                                                                       |
+| Meta Compartilhada com lançamento mensal próprio (ids 5066, 5156, 5219, 5231, 5278)          | 60 registros                   | Ignorado por construção (ver acima); confirmado 0 vazamento no cálculo                                          |
+| Meta Individual sem nenhum lançamento mensal (ids 5014, 5063, 5146, 5188)                     | 4                              | R8 cobre — sem nota, fora do score                                                                                |
+| Colaborador com soma de peso das metas != 100 (varia entre 85 e 120)                           | 7                              | R9 normaliza por soma de peso, não quebra o cálculo — só não assumir 100 no Dashboard/Agente                  |
+| `polaridade`/`tipo_acumulacao` nulos na própria linha de meta Compartilhada               | presente                       | Esperado — R7 resolve via `COALESCE` com a referência, o valor próprio nunca é usado quando é Compartilhada |
 
 Checado e confirmado limpo (sem achado): PK duplicada em todas as 5 tabelas,
 FK órfã em todas as relações, ciclo na cadeia de gestores, auto-gestor,
@@ -198,22 +205,22 @@ Duas escolhas independentes na definição:
 **Resultado principal — pior caso das quatro testadas (holder / fim):**
 a **maior** variação encontrada é de **1.64 ponto** no score de um colaborador, **0.113** no score de uma área (o máximo entre as 11 áreas) e **0.125** no score médio do time de um gestor (o máximo entre os 9). São valores máximos, não médias. O **top 3 / bottom 3 de P3 não muda**, nem a elegibilidade de ninguém.
 
-| Definição | colab. que mudam | máx \|Δ\| colaborador | máx \|Δ\| área | máx \|Δ\| gestor (9) | top 3 / bottom 3 de P3 |
-|---|---|---|---|---|---|
-| **holder / fim (pior caso)** | 4 | 1.64 | 0.113 | 0.125 | inalterado |
-| holder / início | 4 | 0.96 | 0.054 | 0.060 | inalterado |
-| owner / fim | 3 | 1.41 | 0.043 | 0.047 | inalterado |
-| owner / início (a da quarentena) | 3 | 0.68 | 0.007 | 0.007 | inalterado |
+| Definição                        | colab. que mudam | máx \|Δ\| colaborador | máx \|Δ\| área | máx \|Δ\| gestor (9) | top 3 / bottom 3 de P3 |
+| ---------------------------------- | ---------------- | ----------------------- | ----------------- | ---------------------- | ---------------------- |
+| **holder / fim (pior caso)** | 4                | 1.64                    | 0.113             | 0.125                  | inalterado             |
+| holder / início                   | 4                | 0.96                    | 0.054             | 0.060                  | inalterado             |
+| owner / fim                        | 3                | 1.41                    | 0.043             | 0.047                  | inalterado             |
+| owner / início (a da quarentena)  | 3                | 0.68                    | 0.007             | 0.007                  | inalterado             |
 
 Detalhe do pior caso (holder / fim; Δ = score atual − score sem os
 lançamentos pós-desligamento):
 
 | id_colaborador | Δ score |
-|---|---|
-| 134 | -1.64 |
-| 138 | +0.85 |
-| 113 | -0.40 |
-| 135 | -0.34 |
+| -------------- | -------- |
+| 134            | -1.64    |
+| 138            | +0.85    |
+| 113            | -0.40    |
+| 135            | -0.34    |
 
 Nota sobre o 113: ele é o único que diminui ao passar de holder / início
 (-0.54) para holder / fim (-0.40). Não é erro de sinal — é efeito do corte
@@ -262,7 +269,6 @@ severa — não há necessidade de reportar uma segunda versão de P2/P3.
   P1 (72 linhas), P2 (11) e P3 (6) idênticos, diferença máxima 0.0000, e
   universo de P3 = 9 gestores. Foi a primeira confirmação que não vinha de
   auto-relato do pipeline SQL.
-
 - **P1 (score por colaborador):** 72 de 81 colaboradores elegíveis (R10),
   scores no intervalo [0, 120] como R6 define. Recalculei a média ponderada
   na mão para os 5 scores mais baixos (18.17 a 54.85) — bateram exatos com
@@ -281,19 +287,230 @@ severa — não há necessidade de reportar uma segunda versão de P2/P3.
   dos 9, sem sobreposição. O filtro de "pelo menos 3" inclui corretamente o
   caso-limite de exatamente 3 subordinados.
 
+## Painel — processo de decisão
+
+O enunciado pede só um painel de uma página, em qualquer ferramenta, com
+PDF/print e código-fonte se possível (`painel/entrega/Mereo_Case_Dashboard_Pwbi.png`
+
++ `painel/powerbi/Dashboard/Dashboard_case_mereo.pbip`). O caminho até a
+  entrega final passou por três etapas, cada uma validando algo diferente
+  antes de comprometer tempo na próxima — não foi refação, foi sequenciamento
+  deliberado de risco.
+
+### Etapa 1 — Protótipo Streamlit (`painel/streamlit/`): decidir o quê mostrar
+
+Antes de discutir pixel, cor ou ferramenta, a pergunta era "quais métricas
+entram e quais não". O protótipo lê direto de `painel/dados/p1/p2/p3_enriquecido.csv`,
+sem compromisso visual nenhum, e existe só pra isso: 3 opções de
+layout/conteúdo (cards executivos, narrativa vertical, grade densa) pra
+comparar o que fazia sentido mostrar pra diretoria. O que essa etapa
+resolveu: fechar a lista de 5 blocos de `analise_resultados.md` (score
+médio + cobertura, distribuição por faixa, Direto vs Consolidado por área,
+Top/Bottom 5 colaboradores, Top/Bottom 3 gestores) e decidir explicitamente
+o que **não** entra — por exemplo, o destaque nominal da Olívia Queiroz
+como "pior gestora" foi descartado nessa fase porque quase metade do
+efeito vem de um desligamento isolado (Paula Cardoso), não de desempenho
+sustentado do time (ver §2 de `analise_resultados.md`).
+
+### Etapa 2 — Protótipo HTML/Figma (`painel/html/`): decidir a aparência
+
+Com o escopo fechado, o problema virou visual: layout fixo de página única
+(1280×720, sem scroll, estilo "painel de sala"), tipografia, paleta,
+hierarquia visual dos 6 blocos. Streamlit não dá esse controle fino de
+pixel — então `painel_mereo_final.html` serviu de mockup de alta
+fidelidade, usado como referência pra um design no Figma. Essa etapa
+validou espaçamento, tamanho de fonte por elemento e paleta de cor
+(semáforo vermelho/amarelo/verde consistente com a distribuição de score),
+documentados em `painel/powerbi/powerbi_construcao_painel.md` — esse
+arquivo único substitui as duas specs que existiram antes (uma pré-build,
+outra escrita durante a construção): ele documenta o que foi de fato
+implementado no `.pbip`, conferido linha a linha no modelo, com os pontos
+em que o plano original e o resultado final divergiram marcados
+explicitamente (por exemplo: Zona Crítica e Top 5 viraram gráfico de
+barras em vez de tabela; Gestores Top/Bottom usam filtro básico manual em
+vez do Top N nativo, que nunca funcionou de forma confiável).
+
+### Etapa 3 — Power BI (`painel/powerbi/`): a entrega real
+
+O painel final (`Dashboard_case_mereo.pbip`, formato de projeto, versionável
+em texto) roda sobre o star schema já validado (`marts`: `dim_area`,
+`dim_colaborador`, `vw_score_colaborador/area/gestor`, consumidos via
+`painel/dados/*.csv`) — sem recalcular nada, só consumindo as views.
+Streamlit e HTML foram protótipo de decisão (conteúdo e aparência); Power
+BI é a ferramenta de BI de verdade, com modelo de dados, medidas DAX e
+Matrix hierárquica real — é o que demonstra a competência que o case
+avalia, não o protótipo.
+
+**Tropeços reais na construção do Power BI** (documentados com a mesma
+honestidade dos achados de qualidade acima):
+
+- **Linhas fantasma em branco na Matrix de Área (Direto/Consolidado):**
+  bug de design meu — a Matrix agrupava a própria linha da área-pai como
+  um nível hierárquico "vazio" separado. Corrigido com uma coluna `Is Leaf`
+  + medida `Area Atual` + filtro visual.
+- **Caso de borda "pai com filho único" (Gerência de Logística):** mesmo
+  depois do fix acima, essa área específica continuava perdendo o valor
+  Consolidado. Causa: a medida `Area Atual` usava `SELECTEDVALUE`/`COALESCE`,
+  que não distingue "nível de grupo ativo" quando o pai tem exatamente um
+  filho (sem ambiguidade pra forçar branco). Corrigido trocando para
+  `ISINSCOPE`.
+- **Top 3/Bottom 3 de gestores:** três bugs encadeados — agregação errada
+  no eixo (Contagem em vez de Média), campo "Por valor" do filtro Top N
+  configurado com a mesma agregação errada (é um campo separado do eixo,
+  fácil de não notar), e uma coluna calculada `Nome do Gestor` construída
+  na tabela errada (`dim_colaborador` em vez de `vw_score_gestor`) e na
+  direção errada (nome do gestor de cada subordinado, não o nome do
+  próprio gestor). Mesmo depois de corrigir os três, o filtro Top N nativo
+  nunca funcionou de forma confiável — decisão final: abandonar o Top N
+  nativo e usar filtro básico manual com os 6 nomes exatos de
+  `vw_score_gestor.csv`.
+- **Katina Oliveira e Nicolas Duarte sem "Score Médio Time":** investigado
+  contra `marts.vw_score_gestor` antes de assumir bug — são exclusões
+  corretas da própria regra do enunciado (gestor precisa estar ativo em
+  31/12/2025 e ter ≥3 subordinados diretos elegíveis); Nicolas falha o
+  primeiro filtro, Katina o segundo. Não é falha de dado nem de modelo.
+
+## Parte 4 — Agente de IA
+
+Código completo, instruções de uso e decisões de arquitetura estão em
+`agente/README.md` — aqui vai o resumo que a rubrica do enunciado pede
+direto: arquitetura de ferramentas, como rodar, respostas às 5 perguntas
+obrigatórias, e onde o agente acertou/errou.
+
+### Ferramentas
+
+Requisito do enunciado: "o agente deve usar ferramentas (funções que
+executam consultas definidas por você) em vez de gerar SQL livre a cada
+pergunta." O agente (Pydantic AI + API Anthropic) nunca gera SQL a
+partir do texto da pergunta — ele escolhe entre 6 funções Python fixas
+(`score_colaborador`, `score_area`, `score_gestor`,
+`colaboradores_do_time_por_score`, `ranking_areas`,
+`metas_colaborador_por_atingimento`), cada uma com uma query pré-escrita
+em `agente/tools.py`. O único espaço de variação por chamada é um nome
+(resolvido por busca parcial via placeholder `?`, nunca interpolado em
+SQL), um limite numérico, ou um enum fechado (`"abaixo"/"acima"`,
+`"direto"/"consolidado"`) que mapeia para um fragmento de SQL fixo
+escolhido em Python. As tools leem as views `marts.*` já validadas (via
+CSVs materializados + DuckDB em memória, não conexão direta ao SQL
+Server) — nunca recalculam R4–R11 em Python.
+
+### Como rodar
+
+```powershell
+cd agente
+pip install -r requirements.txt
+$env:ANTHROPIC_API_KEY="sua-chave-aqui"
+python run_perguntas.py
+```
+
+Gera `agente/respostas.md` com as 5 respostas reais. Não depende de SQL
+Server, driver ODBC nem autenticação Windows — só Python e os CSVs já
+inclusos em `agente/dados/` (self-contained por decisão de arquitetura;
+ver `agente/README.md`, seção "Fonte de dados").
+
+### Respostas às 5 perguntas obrigatórias
+
+| # | Pergunta                                        | Resposta                                                                                    |
+| - | ----------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| 1 | Score da Gerência de Marketing?                | 84,43 (área sem subárea, direto = consolidado)                                            |
+| 2 | Time da Sofia Oliveira com score < 90?          | Sabrina Cardoso (54,85), Manuela Oliveira (63,67), Gabriela Ferraz (89,30)                  |
+| 3 | Diretoria com melhor consolidado?               | Diretoria Financeira (103,30)                                                               |
+| 4 | Metas do Nicolas Vasconcelos < 80% atingimento? | "Número de reuniões qualificadas" (70,19%), "Leads gerados" (77,07%) — nota 0,0 nas duas |
+| 5 | Score da área Vendas Oeste?                    | Não existe na base — áreas de Vendas reais são Coordenação Vendas Sul e Norte         |
+
+Texto completo de cada resposta (como o agente respondeu, não resumido)
+em `agente/respostas.md`.
+
+### Onde acertou, onde errou, o que eu melhoraria
+
+**Acertou nas 5/5** — números conferidos de forma independente contra os
+CSVs, não só aceito porque o agente disse que estava certo. A Q5 é o
+teste mais importante: "Vendas Oeste" não existe na base, e o agente não
+alucinou um número para Vendas Sul ou Norte — disse que não encontrou e
+pediu confirmação do nome. É a prova de que a decisão de design
+(`resolver_por_nome` nunca "pega o primeiro", status `nao_encontrado`
+tratado explicitamente no prompt) funciona na prática.
+
+**Errou uma vez, mas por bug meu de teste, não do agente**: na primeira
+rodada, a Q1 falhou porque escrevi "Gerencia" sem acento no roteiro de
+perguntas — `ILIKE` é case-insensitive mas não remove acento, então não
+bateu com "Gerência" no banco. O comportamento do agente diante da falha
+foi o correto mesmo assim (não achou, não chutou, pediu confirmação); o
+erro de origem era meu, não dele. Corrigido.
+
+**Inconsistência real encontrada, essa sim do agente**: a explicação da
+Q4 mudou entre rodadas para o mesmo resultado numérico — uma vez tratou
+"nota zero" como suposição ("provavelmente por estarem abaixo de algum
+limiar mínimo"), outra vez citou a regra R6 com certeza. Mesmos dados,
+mesma tool, explicação diferente, porque o system prompt nunca deu as
+regras de negócio ao agente, só os números já calculados — quando ele
+tenta explicar o *porquê*, às vezes acerta por inferência, às vezes
+especula.
+
+O que eu faria para melhorar: (1) colocar um resumo das regras-chave
+(pelo menos R6) no system prompt, para tirar essa variância de
+explicação; (2) normalizar acento na resolução de nome, para "Gerencia"
+bater com "Gerência" sem exigir grafia exata; (3) um golden set de
+regressão automatizado rodando as tools direto contra os CSVs, sem LLM —
+foi esse tipo de checagem (não uma chamada de API) que usei para validar
+a migração de `intermediate.vw_nota_meta` para `marts.vw_nota_meta` sem
+gastar tempo nem custo de token.
+
+## Dependências
+
+Um único `requirements.txt` na raiz, dividido em blocos comentados por
+componente — só o primeiro é obrigatório pra gerar P1/P2/P3:
+
+- **Pipeline SQL** (obrigatório): `pyodbc`, `pandas`, `numpy`
+- **Agente de IA** (`agente/`): `pydantic-ai`, `duckdb`
+- **Painel** (`painel/prototipo_streamlit.py`): `streamlit`
+
+`pip install -r requirements.txt` instala os três blocos. Pra instalar só
+o necessário pro pipeline: `pip install pyodbc pandas numpy`.
+
+`python verificar_ambiente.py` confere o que está instalado — Python,
+pacotes dos três blocos, driver ODBC, conexão com o SQL Server e presença
+do dado de origem — e diz exatamente o que falta e o comando pra resolver.
+Falta de algo do pipeline bloqueia (`exit code 1`, porque impede gerar
+P1/P2/P3); falta de algo do agente ou do painel só avisa, porque são
+opcionais dependendo do que se quer rodar.
+
 ## Como reproduzir
 
-1. Rodar `sql/01_setup/` e `sql/02_staging/` no SSMS (cria banco, schemas
-   e tabelas).
-2. `pip install pyodbc` e `python etl/extract_load.py` (carrega `staging.*`
-   a partir do SQLite).
-3. Rodar `sql/03_intermediate/` e `sql/04_marts/` no SSMS, na ordem dos
-   arquivos (cria as views).
-4. `python etl/export_respostas.py` (gera os três CSVs em `respostas/`).
+0. Colocar os arquivos de dados recebidos no case em
+   `material_original/dados/` (não versionado neste repo — ver
+   `.gitignore` e a nota acima sobre dado de origem).
+1. `pip install -r requirements.txt` (instala os três blocos — pipeline,
+   agente e painel). Opcional: `python verificar_ambiente.py` pra conferir
+   o ambiente antes de rodar.
+2. `python etl/run_pipeline.py` — cria banco e schemas no SQL Server (se
+   não existirem), roda `staging → intermediate → marts` na ordem certa de
+   dependências, carrega os dados do SQLite e exporta os CSVs de
+   `marts.*` para `painel/dados/` e `agente/dados/`.
+3. `python etl/export_respostas.py` — gera os três CSVs oficiais da
+   entrega em `respostas/` (`p1_score_colaborador.csv`,
+   `p2_score_area.csv`, `p3_gestores.csv`).
+
+Pra resetar o banco do zero antes do passo 2, rodar `sql/00_drop_all.sql`
+no SSMS primeiro.
 
 Para rodar só o diagnóstico de qualidade (gera
-`qualidade/relatorio_diagnostico.md`):
+`etl/verificacao/relatorio_diagnostico.md`):
 
 ```
-python etl/diag_qualidade.py
+python etl/verificacao/diag_qualidade.py
 ```
+
+## Parte 5 — Perguntas abertas
+
+### 1. O Grupo Aurora quer enviar os dados de colaboradores todos os dias via API. Como você desenharia essa integração e o pipeline até o Data Warehouse?
+
+O primeiro cuidado é separar quem recebe o dado de quem valida e carrega: um endpoint de API com contrato formal contendo schema versionado, autenticação e idempotência por chave de negócio recebe o payload diário e grava no Azure Blob Storage, o que permite reprocessar um lote problemático sem pedir reenvio. O evento de blob criado dispara uma Azure Function que valida schema e regras básicas, separando o que passa do que vai para quarentena com motivo registrado. A carga em staging no SQL Server precisa ser merge/upsert, porque dado do mundo real repete e corrige registros com frequência maior do que se espera. Dali em diante, o pipeline segue em camadas versionadas, com log de execução e alerta por etapa. Neste projeto, essa última parte já está validada na prática: staging alimenta as views de intermediate e marts via stored procedure ou task agendada.
+
+### 2. O agente da Parte 4 entrou em produção. Como você saberia que ele está respondendo errado?
+
+Sem alguém testando cada resposta, o erro raramente aparece como "o agente disse algo errado na cara". Os sinais reais são mais sutis: usuário reformulando a mesma pergunta várias vezes seguidas, taxa de respostas com status de erro da ferramenta subindo num período, ou negócio reclamando de um número que deveria ter sido pego antes de chegar até ele. Eu cobriria isso com duas camadas: regressão automática, rodando um golden set de perguntas com resposta conhecida sempre que prompt, modelo ou dados mudarem; e revisão qualitativa, porque número certo não garante raciocínio certo, e uma explicação que muda entre rodadas pro mesmo resultado é erro tanto quanto um número errado, só mais difícil de perceber se ninguém registrar. Neste projeto, essa segunda camada já existe: cada resposta do golden set de 5 perguntas é gravada junto com um comentário manual específico (dict `COMENTARIOS`), registrando onde o agente acertou, onde errou e por quê.
+
+### 3. O RH diz que o score de uma área no painel não bate com a planilha deles. Por onde você começa?
+
+Antes de abrir qualquer query, eu faria perguntas para a pessoa: quem mantém essa planilha, com que frequência atualiza, e se ela segue a mesma definição de regra que o painel usa ou nasceu de outro processo, talvez mais antigo, com um critério nunca documentado formalmente. Divergência não significa que o painel está certo. Pode ser o contrário: a planilha reflete um ajuste manual que o RH faz há meses e que virou prática sem virar regra escrita, e nesse caso o problema é de negócio. Presumir que o sistema é a fonte de verdade antes dessa conversa é um tipo de erro; depois eu partiria para a checagem técnica. Neste projeto, essa checagem já está pronta: rodo o `verificacao_independente.py`, que reimplementa as regras em pandas direto do SQLite original, sem usar nenhuma view do projeto, e compara contra os três CSVs de resposta, isolando se a causa é regra de cálculo ou dado de origem.
