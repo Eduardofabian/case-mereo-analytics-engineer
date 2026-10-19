@@ -112,6 +112,34 @@ Três camadas, cada uma um schema no SQL Server:
   (`vw_score_colaborador`, `vw_score_area`, `vw_score_gestor`) — é daqui que
   Dashboard, Agente de IA e os CSVs de `respostas/` leem.
 
+### Processo — Discovery, Design, Develop, Delivery
+
+- **Discovery** — exploração inicial da base (`material_original/dados/`):
+  volumetria, hierarquia de área, tipos de meta, e a bateria de checagens
+  de qualidade que gerou os achados documentados abaixo.
+- **Design** — modelagem do star schema (`dim_area`, `dim_colaborador`,
+  `dim_meta`, `fact_meta_valor_mensal` + as 3 views de score) e o diagrama
+  ER em `painel/diagramas/Mereo_Grupo_Aurora.{sql,svg,png}`, desenhado no
+  [dbdiagram.io](https://dbdiagram.io).
+- **Develop** — implementação em T-SQL puro das camadas
+  `staging → intermediate → marts`, no padrão de modelagem em camadas
+  popularizado pelo dbt — não a ferramenta dbt em si (não usada neste
+  case; orquestração é manual, via `etl/run_pipeline.py`).
+- **Delivery** — export para os CSVs de `respostas/` (Parte 1), `painel/dados/`
+  (Power BI) e `agente/dados/` (agente de IA), todos na mesma rodada de
+  `run_pipeline.py`.
+
+### Próximo passo — ingestão via API (arquitetura futura)
+
+O pipeline atual é batch, a partir do SQLite fornecido. Se o Grupo Aurora
+passar a enviar dados diariamente via API (ver Parte 5, pergunta 1, para a
+justificativa completa), o próximo passo seria: endpoint de API →
+Azure Blob Storage (grava o payload bruto, permite reprocessar sem pedir
+reenvio) → Azure Function (valida schema/regras básicas, separa quarentena)
+→ carga em `staging` via merge/upsert → `intermediate`/`marts` como já
+validado hoje. Não implementado neste case — é a evolução natural do
+pipeline batch atual, não uma mudança de modelo de dados.
+
 Ordem de execução dos scripts em `sql/`: `00_drop_all.sql` (opcional, só se
 já existir algo no banco) → `01_setup/` → `02_staging/` (+ carga dos dados
 via `etl/extract_load.py`) → `03_intermediate/` → `04_marts/` → `05_respostas/`.
