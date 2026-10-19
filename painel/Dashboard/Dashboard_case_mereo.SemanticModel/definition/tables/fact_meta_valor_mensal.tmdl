@@ -1,0 +1,60 @@
+table fact_meta_valor_mensal
+	lineageTag: 4741f695-db44-4060-a692-0f346c1f6558
+
+	column id_meta
+		dataType: int64
+		formatString: 0
+		lineageTag: bdefcc06-2e75-491c-bcde-83abe036212f
+		summarizeBy: none
+		sourceColumn: id_meta
+
+		annotation SummarizationSetBy = Automatic
+
+	column mes
+		dataType: int64
+		formatString: 0
+		lineageTag: 5850dfbc-fa25-47d2-8dcf-5775c9299c6c
+		summarizeBy: sum
+		sourceColumn: mes
+
+		annotation SummarizationSetBy = Automatic
+
+	column previsto
+		dataType: int64
+		formatString: 0
+		lineageTag: 58c297e1-b287-42b5-a364-1b9000af7743
+		summarizeBy: sum
+		sourceColumn: previsto
+
+		annotation SummarizationSetBy = Automatic
+
+	column realizado
+		dataType: int64
+		formatString: 0
+		lineageTag: af3d7ad6-ca32-469a-a7af-1506e007245f
+		summarizeBy: sum
+		sourceColumn: realizado
+
+		annotation SummarizationSetBy = Automatic
+
+	column flag_valido
+		dataType: int64
+		formatString: 0
+		lineageTag: 114daf06-20ff-48bd-8e76-6eb2318a2d31
+		summarizeBy: sum
+		sourceColumn: flag_valido
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_meta_valor_mensal = m
+		mode: import
+		source =
+				let
+				  Origem = Csv.Document(File.Contents("C:\Users\Fabian\Desktop\MEREO CASE\painel\dados\fact_meta_valor_mensal.csv"), [Delimiter = ",", Columns = 5, Encoding = 65001, QuoteStyle = QuoteStyle.None]),
+				  #"Cabeçalhos promovidos" = Table.PromoteHeaders(Origem, [PromoteAllScalars = true]),
+				  #"Tipo de coluna alterado" = Table.TransformColumnTypes(#"Cabeçalhos promovidos", {{"id_meta", Int64.Type}, {"mes", Int64.Type}, {"previsto", Int64.Type}, {"realizado", Int64.Type}, {"flag_valido", Int64.Type}})
+				in
+				  #"Tipo de coluna alterado"
+
+	annotation PBI_ResultType = Table
+

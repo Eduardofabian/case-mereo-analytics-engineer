@@ -1,0 +1,92 @@
+table dim_meta
+	lineageTag: f6d6b03a-67be-4f3c-bca0-3c0f9e4a9577
+
+	column id_meta
+		dataType: int64
+		formatString: 0
+		lineageTag: e6f5e12f-ca8a-44a0-8aef-65f90b2aa128
+		summarizeBy: none
+		sourceColumn: id_meta
+
+		annotation SummarizationSetBy = Automatic
+
+	column id_ciclo
+		dataType: int64
+		formatString: 0
+		lineageTag: 7aa856aa-4043-45e8-b689-db0b7c6461bf
+		summarizeBy: sum
+		sourceColumn: id_ciclo
+
+		annotation SummarizationSetBy = Automatic
+
+	column id_colaborador
+		dataType: int64
+		formatString: 0
+		lineageTag: 1520036b-989b-48de-b985-44f72e402a4b
+		summarizeBy: none
+		sourceColumn: id_colaborador
+
+		annotation SummarizationSetBy = Automatic
+
+	column nome_meta
+		dataType: string
+		lineageTag: 9991378d-9e21-4e5b-b6de-b489ecdd27aa
+		summarizeBy: none
+		sourceColumn: nome_meta
+
+		annotation SummarizationSetBy = Automatic
+
+	column tipo_meta
+		dataType: string
+		lineageTag: 28d2fdb7-2696-4051-be1c-26d4595f4d64
+		summarizeBy: none
+		sourceColumn: tipo_meta
+
+		annotation SummarizationSetBy = Automatic
+
+	column polaridade_efetiva
+		dataType: string
+		lineageTag: c94fffce-8ecb-41bc-be5a-c4bce20d39ff
+		summarizeBy: none
+		sourceColumn: polaridade_efetiva
+
+		annotation SummarizationSetBy = Automatic
+
+	column tipo_acumulacao_efetiva
+		dataType: string
+		lineageTag: 6bbdae40-eb60-4e78-a88f-8710ba5b0641
+		summarizeBy: none
+		sourceColumn: tipo_acumulacao_efetiva
+
+		annotation SummarizationSetBy = Automatic
+
+	column id_meta_lancamentos
+		dataType: int64
+		formatString: 0
+		lineageTag: 66479e0e-e565-47f5-a18a-0ff4db9578b6
+		summarizeBy: sum
+		sourceColumn: id_meta_lancamentos
+
+		annotation SummarizationSetBy = Automatic
+
+	column peso_efetivo
+		dataType: int64
+		formatString: 0
+		lineageTag: 533072dc-7ae8-45f5-b7f8-de64c3ac9d30
+		summarizeBy: sum
+		sourceColumn: peso_efetivo
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_meta = m
+		mode: import
+		source =
+				let
+				  Origem = Csv.Document(File.Contents("C:\Users\Fabian\Desktop\MEREO CASE\painel\dados\dim_meta.csv"), [Delimiter = ",", Columns = 9, Encoding = 65001, QuoteStyle = QuoteStyle.None]),
+				  #"Cabeçalhos promovidos" = Table.PromoteHeaders(Origem, [PromoteAllScalars = true]),
+				  #"Tipo de coluna alterado" = Table.TransformColumnTypes(#"Cabeçalhos promovidos", {{"id_meta", Int64.Type}, {"id_ciclo", Int64.Type}, {"id_colaborador", Int64.Type}, {"nome_meta", type text}, {"tipo_meta", type text}, {"polaridade_efetiva", type text}, {"tipo_acumulacao_efetiva", type text}, {"id_meta_lancamentos", Int64.Type}, {"peso_efetivo", Int64.Type}})
+				in
+				  #"Tipo de coluna alterado"
+
+	annotation PBI_ResultType = Table
+

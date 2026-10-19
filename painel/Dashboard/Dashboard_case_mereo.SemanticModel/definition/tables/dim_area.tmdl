@@ -1,0 +1,102 @@
+table dim_area
+	lineageTag: b6a10203-860e-427a-99fa-546856c2654c
+
+	measure Medida
+		lineageTag: 2b744a45-2e59-49f6-a103-a2dbbaf48b08
+
+		annotation 43dbc3e8-3a1c-4b6f-9923-b49ff7d6691c = True
+
+	column id_area
+		dataType: int64
+		formatString: 0
+		lineageTag: 876fa90c-5f14-46ef-b351-ba2315d34d20
+		summarizeBy: none
+		sourceColumn: id_area
+
+		annotation SummarizationSetBy = Automatic
+
+	column nome
+		dataType: string
+		lineageTag: 6c22af7f-e184-4940-9c80-2cf330d9ee35
+		summarizeBy: none
+		sourceColumn: nome
+
+		annotation SummarizationSetBy = Automatic
+
+	column id_area_pai
+		dataType: int64
+		formatString: 0
+		lineageTag: 212a6f8f-d10c-4d14-854a-dd6923998022
+		summarizeBy: none
+		sourceColumn: id_area_pai
+
+		annotation SummarizationSetBy = Automatic
+
+	column nivel
+		dataType: int64
+		formatString: 0
+		lineageTag: 25024f22-1f3b-4372-aa75-2d2f4e19e756
+		summarizeBy: none
+		sourceColumn: nivel
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Area Path' = PATH ( dim_area[id_area], dim_area[id_area_pai] )
+		lineageTag: 9de06a6d-8853-4770-84e2-b7e4de1d5281
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Area Nivel 0' =
+			
+			LOOKUPVALUE (
+			    dim_area[nome],
+			    dim_area[id_area],
+			    PATHITEM ( dim_area[Area Path], 1, INTEGER )
+			)
+		lineageTag: e1dea379-676d-47a6-9358-253fa4b1068c
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Area Nivel 1' =
+			
+			VAR IdNivel1 = PATHITEM ( dim_area[Area Path], 2, INTEGER )
+			RETURN IF ( NOT ISBLANK ( IdNivel1 ), LOOKUPVALUE ( dim_area[nome], dim_area[id_area], IdNivel1 ) )
+		lineageTag: cd26375a-0388-4de6-a4fd-4a9606fd18ff
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Area Nivel 2' =
+			
+			VAR IdNivel2 = PATHITEM ( dim_area[Area Path], 3, INTEGER )
+			RETURN IF ( NOT ISBLANK ( IdNivel2 ), LOOKUPVALUE ( dim_area[nome], dim_area[id_area], IdNivel2 ) )
+		lineageTag: fd2f3d7e-5305-4c02-9d9b-5452e8503205
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Is Leaf' =
+			
+			VAR MeuId = dim_area[id_area]
+			RETURN
+			    COUNTROWS ( FILTER ( dim_area, dim_area[id_area_pai] = MeuId ) ) = 0
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: a7bdcd15-abcf-4a29-b79d-43ea3b1291e4
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_area = m
+		mode: import
+		source =
+				let
+				  Origem = Csv.Document(File.Contents("C:\Users\Fabian\Desktop\MEREO CASE\painel\dados\dim_area.csv"), [Delimiter = ",", Columns = 4, Encoding = 65001]),
+				  #"Cabeçalhos promovidos" = Table.PromoteHeaders(Origem, [PromoteAllScalars = true]),
+				  #"Tipo de coluna alterado" = Table.TransformColumnTypes(#"Cabeçalhos promovidos", {{"id_area", Int64.Type}, {"nome", type text}, {"id_area_pai", Int64.Type}, {"nivel", Int64.Type}})
+				in
+				  #"Tipo de coluna alterado"
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,50 @@
+table vw_score_gestor
+	lineageTag: f58a75b4-0e7a-4723-b918-dc80f6607043
+
+	column id_gestor
+		dataType: double
+		formatString: 0
+		lineageTag: 768409ed-11a9-4b7f-a207-c90584a896a7
+		summarizeBy: none
+		sourceColumn: id_gestor
+
+		annotation SummarizationSetBy = Automatic
+
+	column score_medio_time
+		dataType: double
+		formatString: 0
+		lineageTag: 70e37c1a-cc37-4265-aea4-816315ae306c
+		summarizeBy: none
+		sourceColumn: score_medio_time
+
+		annotation SummarizationSetBy = Automatic
+
+	column n_subordinados_diretos_elegiveis
+		dataType: double
+		formatString: 0
+		lineageTag: 4b201c42-3579-4b39-9723-7ab5c38abed9
+		summarizeBy: none
+		sourceColumn: n_subordinados_diretos_elegiveis
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Nome do Gestor' =
+			
+			LOOKUPVALUE ( dim_colaborador[nome], dim_colaborador[id_colaborador], vw_score_gestor[id_gestor] )
+		lineageTag: 0a6e000f-a146-4038-ad7b-f2977fbd7c79
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition vw_score_gestor = m
+		mode: import
+		source =
+				let
+				  Origem = Csv.Document(File.Contents("C:\Users\Fabian\Desktop\MEREO CASE\painel\dados\vw_score_gestor.csv"), [Delimiter = ",", Columns = 3, Encoding = 65001, QuoteStyle = QuoteStyle.None]),
+				  #"Cabeçalhos promovidos" = Table.PromoteHeaders(Origem, [PromoteAllScalars = true]),
+				  #"Tipo de coluna alterado" = Table.TransformColumnTypes(#"Cabeçalhos promovidos", {{"id_gestor", type number}, {"score_medio_time", type number}, {"n_subordinados_diretos_elegiveis", type number}}, "en-US")
+				in
+				  #"Tipo de coluna alterado"
+
+	annotation PBI_ResultType = Table
+

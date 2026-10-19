@@ -1,0 +1,55 @@
+table vw_score_colaborador
+	lineageTag: 111ff64b-67fa-4f4e-bf67-4c3c3a83fff3
+
+	measure 'Qtd Faixa Score' =
+			
+			CALCULATE(
+			    COUNTROWS ( vw_score_colaborador ),
+			    dim_colaborador[flag_elegivel_r10] = 1
+			)
+		formatString: 0
+		lineageTag: 24822f22-e951-4a3e-8606-e465079f47f2
+
+	column id_colaborador
+		dataType: double
+		formatString: 0
+		lineageTag: ff9ba2e8-5bfc-47d8-9a4e-c37bcaad3d27
+		summarizeBy: none
+		sourceColumn: id_colaborador
+
+		annotation SummarizationSetBy = Automatic
+
+	column score
+		dataType: double
+		formatString: 0
+		lineageTag: a1c53ffa-de0b-41ab-bd28-c3fc637ab107
+		summarizeBy: sum
+		sourceColumn: score
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Faixa Score' =
+			
+			SWITCH(
+			    TRUE(),
+			    vw_score_colaborador[score] < 80, "Crítico <80",
+			    vw_score_colaborador[score] < 100, "80–100",
+			    "≥100"
+			)
+		lineageTag: b720f1d2-57aa-4f9f-b0e6-15128a529aca
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition vw_score_colaborador = m
+		mode: import
+		source =
+				let
+				  Origem = Csv.Document(File.Contents("C:\Users\Fabian\Desktop\MEREO CASE\painel\dados\vw_score_colaborador.csv"), [Delimiter = ",", Columns = 2, Encoding = 65001, QuoteStyle = QuoteStyle.None]),
+				  #"Cabeçalhos promovidos" = Table.PromoteHeaders(Origem, [PromoteAllScalars = true]),
+				  #"Tipo de coluna alterado" = Table.TransformColumnTypes(#"Cabeçalhos promovidos", {{"id_colaborador", type number}, {"score", type number}}, "en-US")
+				in
+				  #"Tipo de coluna alterado"
+
+	annotation PBI_ResultType = Table
+

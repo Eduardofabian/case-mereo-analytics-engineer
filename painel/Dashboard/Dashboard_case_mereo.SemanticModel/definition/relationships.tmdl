@@ -1,0 +1,38 @@
+relationship b0e474ae-60ef-4fde-954e-0bc4d5adf0ee
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dim_colaborador.data_admissao
+	toColumn: LocalDateTable_827623b8-72a3-4f8c-8b74-3bc6da3badbd.Date
+
+relationship fd2ba6b6-25ca-4e4d-91c6-fb97e04a3f6e
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dim_colaborador.data_desligamento
+	toColumn: LocalDateTable_5ebd0a3c-d183-4d71-a232-e9db512fbe42.Date
+
+relationship AutoDetected_6b89deec-9f1d-4251-8efd-3c8b5a2dc665
+	fromColumn: dim_colaborador.id_area
+	toColumn: dim_area.id_area
+
+relationship AutoDetected_bf1c6812-a553-4dd8-83d7-a63643bbe4ac
+	fromColumn: dim_meta.id_colaborador
+	toColumn: dim_colaborador.id_colaborador
+
+relationship AutoDetected_bc069df6-ad37-412f-bb5f-c5834404d0fe
+	fromColumn: fact_meta_valor_mensal.id_meta
+	toColumn: dim_meta.id_meta
+
+relationship AutoDetected_ba2cfb80-61c8-4834-8c6a-e5745bd6440e
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: vw_score_area.id_area
+	toColumn: dim_area.id_area
+
+relationship AutoDetected_bf859d4a-be9f-497b-a3a1-9858be604d81
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: vw_score_colaborador.id_colaborador
+	toColumn: dim_colaborador.id_colaborador
+
+relationship AutoDetected_29486c50-b90a-4381-b801-423c1b430dc4
+	fromColumn: dim_colaborador.id_gestor
+	toColumn: vw_score_gestor.id_gestor
+

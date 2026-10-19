@@ -24,6 +24,10 @@ desktop.ini
 .idea/
 .claude/
 
+# Power BI (PBIP): cache e configuracoes locais da maquina
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+
 # Notas de trabalho locais, fora da estrutura de entrega
 md/
 Tarefas/

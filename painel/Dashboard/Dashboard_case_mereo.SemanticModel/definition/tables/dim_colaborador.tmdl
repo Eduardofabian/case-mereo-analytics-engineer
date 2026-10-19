@@ -1,0 +1,100 @@
+table dim_colaborador
+	lineageTag: 7d07854e-4861-4360-8f99-2390694d921c
+
+	column id_colaborador
+		dataType: int64
+		formatString: 0
+		lineageTag: d1a90ae4-d389-4249-83da-5e0d021b0a17
+		summarizeBy: none
+		sourceColumn: id_colaborador
+
+		annotation SummarizationSetBy = Automatic
+
+	column nome
+		dataType: string
+		lineageTag: f2b7a679-c941-4db4-8165-341c1a8ff7a9
+		summarizeBy: none
+		sourceColumn: nome
+
+		annotation SummarizationSetBy = Automatic
+
+	column id_area
+		dataType: int64
+		formatString: 0
+		lineageTag: 131a1bd5-83fe-4f24-a10c-df97e0575fba
+		summarizeBy: none
+		sourceColumn: id_area
+
+		annotation SummarizationSetBy = Automatic
+
+	column id_gestor
+		dataType: int64
+		formatString: 0
+		lineageTag: 898ac3c0-a708-47fd-bd71-7ed683cbdb5b
+		summarizeBy: none
+		sourceColumn: id_gestor
+
+		annotation SummarizationSetBy = Automatic
+
+	column data_admissao
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: f0921096-484e-470d-bc24-bf158c731d97
+		summarizeBy: none
+		sourceColumn: data_admissao
+
+		variation Variação
+			isDefault
+			relationship: b0e474ae-60ef-4fde-954e-0bc4d5adf0ee
+			defaultHierarchy: LocalDateTable_827623b8-72a3-4f8c-8b74-3bc6da3badbd.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column data_desligamento
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 5690e363-6acd-4847-bcf7-0522519e10d2
+		summarizeBy: none
+		sourceColumn: data_desligamento
+
+		variation Variação
+			isDefault
+			relationship: fd2ba6b6-25ca-4e4d-91c6-fb97e04a3f6e
+			defaultHierarchy: LocalDateTable_5ebd0a3c-d183-4d71-a232-e9db512fbe42.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column flag_elegivel_r10
+		dataType: int64
+		formatString: 0
+		lineageTag: f18c6e46-3df1-4e17-a6ba-8271b90d29e8
+		summarizeBy: sum
+		sourceColumn: flag_elegivel_r10
+
+		annotation SummarizationSetBy = Automatic
+
+	column flag_ativo_fim_2025
+		dataType: int64
+		formatString: 0
+		lineageTag: aa04a2b5-9009-4d1e-92a7-6b17760e1983
+		summarizeBy: sum
+		sourceColumn: flag_ativo_fim_2025
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_colaborador = m
+		mode: import
+		source =
+				let
+				  Origem = Csv.Document(File.Contents("C:\Users\Fabian\Desktop\MEREO CASE\painel\dados\dim_colaborador.csv"), [Delimiter = ",", Columns = 8, Encoding = 65001, QuoteStyle = QuoteStyle.None]),
+				  #"Cabeçalhos promovidos" = Table.PromoteHeaders(Origem, [PromoteAllScalars = true]),
+				  #"Tipo de coluna alterado" = Table.TransformColumnTypes(#"Cabeçalhos promovidos", {{"id_colaborador", Int64.Type}, {"nome", type text}, {"id_area", Int64.Type}, {"id_gestor", Int64.Type}, {"data_admissao", type date}, {"data_desligamento", type date}, {"flag_elegivel_r10", Int64.Type}, {"flag_ativo_fim_2025", Int64.Type}})
+				in
+				  #"Tipo de coluna alterado"
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "Dashboard_case_mereo"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "123b296e-6e83-496b-b560-3f9742a6e93c"
+  }
+}

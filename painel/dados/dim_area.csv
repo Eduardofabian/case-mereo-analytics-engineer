@@ -1,0 +1,12 @@
+﻿id_area,nome,id_area_pai,nivel
+1,Diretoria Comercial,,0
+6,Diretoria de Operações,,0
+10,Diretoria Financeira,,0
+11,Gerência de Controladoria,10,1
+7,Gerência de Logística,6,1
+9,Gerência de Qualidade,6,1
+8,Coordenação de Transporte,7,2
+2,Gerência de Vendas,1,1
+5,Gerência de Marketing,1,1
+3,Coordenação Vendas Sul,2,2
+4,Coordenação Vendas Norte,2,2

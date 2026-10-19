@@ -1,0 +1,169 @@
+table Medidas
+	lineageTag: ceffa48c-9c83-4d0b-8e81-4c5ba4a86562
+
+	measure 'Score Médio Ciclo' =
+			
+			CALCULATE(
+			    AVERAGE ( vw_score_colaborador[score] ),
+			    dim_colaborador[flag_elegivel_r10] = 1
+			)
+		lineageTag: d2489ec5-1f4e-4b5f-b9bd-079f30b7077e
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Score Mediano Ciclo (texto rodapé)' =
+			
+			VAR Mediana =
+			    CALCULATE (
+			        MEDIAN ( vw_score_colaborador[score] ),
+			        dim_colaborador[flag_elegivel_r10] = 1
+			    )
+			RETURN
+			"Mediana " & FORMAT ( Mediana, "0.00", "en-US" )
+		lineageTag: d45ac5aa-4eab-4f93-bf13-4b42ca7c1384
+
+	measure Elegiveis =
+			
+			CALCULATE(
+			    COUNTROWS ( dim_colaborador ),
+			    dim_colaborador[flag_elegivel_r10] = 1
+			)
+		formatString: 0
+		lineageTag: c4aee49b-06ea-4810-aac3-46c9e7d2218c
+
+	measure 'Total Colaboradores' = COUNTROWS ( dim_colaborador )
+		formatString: 0
+		lineageTag: 6cf86b67-2732-4d9b-8bd6-dd83475068f1
+
+	measure 'Zona Critica Qtd' =
+			
+			CALCULATE(
+			    COUNTROWS ( vw_score_colaborador ),
+			    dim_colaborador[flag_elegivel_r10] = 1,
+			    vw_score_colaborador[score] < 80
+			)
+		formatString: 0
+		lineageTag: ed5c1dae-5e3b-4872-9124-c1e3859a4f6c
+
+	measure 'Zona Critica Pct' =
+			
+			DIVIDE ( [Zona Critica Qtd], [Elegiveis] )
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: d9247541-c0c5-4480-8c8f-cb767cc4b001
+
+	measure 'Intermediario Qtd' =
+			
+			CALCULATE(
+			    COUNTROWS ( vw_score_colaborador ),
+			    dim_colaborador[flag_elegivel_r10] = 1,
+			    vw_score_colaborador[score] >= 80,
+			    vw_score_colaborador[score] < 100
+			)
+		formatString: 0
+		lineageTag: a47b47e5-b06e-4cb8-b324-72bf8c12bfd2
+
+	measure 'Intermediario Pct' = DIVIDE ( [Intermediario Qtd], [Elegiveis] )
+		lineageTag: 9ee6d539-8941-4658-9a8a-e861cb47a1f6
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Acima Meta Qtd' =
+			
+			CALCULATE(
+			    COUNTROWS ( vw_score_colaborador ),
+			    dim_colaborador[flag_elegivel_r10] = 1,
+			    vw_score_colaborador[score] >= 100
+			)
+		formatString: 0
+		lineageTag: f589a3e0-a7d0-44c2-b104-522f2f1ba6d2
+
+	measure 'Acima Meta Pct' = DIVIDE ( [Acima Meta Qtd], [Elegiveis] )
+		lineageTag: 8a9322c0-0866-4ce1-8dea-4d8e5ef99208
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Abaixo Meta Qtd' = [Zona Critica Qtd] + [Intermediario Qtd]
+		formatString: 0
+		lineageTag: bbb5dcdb-4356-42ba-9d78-4315e699efd4
+
+	measure 'Abaixo Meta Pct' = DIVIDE ( [Abaixo Meta Qtd], [Elegiveis] )
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: cab3f6fe-ea76-4646-8afd-e684dbb568b6
+
+	measure 'Elegiveis Subtitulo' = "de " & [Total Colaboradores] & " colaboradores"
+		lineageTag: bf2d98d3-ffdd-4263-b6a3-61017ac8f1e1
+
+	measure 'Abaixo Meta Subtitulo' = ```
+			
+			  [Zona Critica Qtd] & " críticos + " & [Intermediario Qtd] & " intermediários"
+			```
+		lineageTag: 9f67609d-2dfc-41e3-aa84-eab32c6bba0a
+
+	measure 'Rotulo Distribuicao' = "Ciclo 2025"
+		lineageTag: e014a85b-103b-40f0-be43-fd0923e28f9c
+
+	measure 'Score Direto' = SUM ( vw_score_area[score_direto] )
+		lineageTag: 4cae602e-0ceb-4d6d-99a4-aab2dbee3771
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Score Consolidado' = SUM ( vw_score_area[score_consolidado] )
+		lineageTag: 0eec2b92-0781-4ded-aa4d-fc3482803633
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Area Atual' =
+			
+			SWITCH (
+			    TRUE (),
+			    ISINSCOPE ( dim_area[Area Nivel 2] ), SELECTEDVALUE ( dim_area[Area Nivel 2] ),
+			    ISINSCOPE ( dim_area[Area Nivel 1] ), SELECTEDVALUE ( dim_area[Area Nivel 1] ),
+			    SELECTEDVALUE ( dim_area[Area Nivel 0] )
+			)
+		lineageTag: c3250873-97ad-444e-8f1d-5b0f88881c79
+
+	measure 'Score Direto (Matriz)' = ```
+			
+			VAR AreaAtual = [Area Atual]
+			RETURN
+			    CALCULATE (
+			        [Score Direto],
+			        REMOVEFILTERS ( dim_area ),
+			        dim_area[nome] = AreaAtual
+			    )
+			
+			```
+		lineageTag: 103d11a4-7176-43be-b63d-bdbaabed5b6e
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Score Consolidado Exibir (Matriz)' =
+			
+			VAR AreaAtual = [Area Atual]
+			VAR Direto = CALCULATE ( [Score Direto], REMOVEFILTERS ( dim_area ), dim_area[nome] = AreaAtual )
+			VAR Consolidado = CALCULATE ( [Score Consolidado], REMOVEFILTERS ( dim_area ), dim_area[nome] = AreaAtual )
+			RETURN
+			    IF ( ROUND ( Direto, 2 ) = ROUND ( Consolidado, 2 ), BLANK(), Consolidado )
+		lineageTag: d94f6580-e45c-43c0-a135-37b331e8fb5e
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Column
+		formatString: 0
+		lineageTag: 25a8fba7-0f08-463b-9d37-53af73e43814
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Column]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Medidas = calculated
+		mode: import
+		source = Row("Column", BLANK())
+
+	annotation PBI_Id = d1212936ae1548f19ecd18760151b7f8
+
+	annotation 436ba87b-9c83-4389-a31b-ebd06a36be98 = {"Expression":null}
+
+	annotation 277cc1b9-af89-4597-8e15-cacc25c0886b = Para usar caracteres especiais em um nome de tabela calculado, feche o nome completo com colchetes ( [] ) e adicione ] a quaisquer colchetes de fechamento no nome.
+

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280, initial-scale=1.0">
+<title>Resultado do Ciclo 2025 — Grupo Aurora</title>
+<style>
+  :root {
+    --mereo-purple: #6227EA;
+    --mereo-purple-soft: #F1EBFD;
+    --mereo-orange: #FF5C39;
+    --mereo-orange-soft: #FFE8E2;
+    --ink: #1C1C1C;
+    --ink-soft: #6B7280;
+    --bg-page: #F7F7F9;
+    --bg-card: #FFFFFF;
+    --bg-dark: #212529;
+    --bg-dark-2: #2C2F37;
+    --border: #ECECF0;
+    --good: #1F9254;
+    --good-soft: #E6F6ED;
+    --mid: #FF5C39;
+    --mid-soft: #FFE8E2;
+    --bad: #E5484D;
+    --bad-soft: #FDEAEA;
+    --radius-lg: 14px;
+    --radius-md: 10px;
+    --radius-pill: 999px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg-page);
+    color: var(--ink);
+    font-family: "Inter", "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+
+  .frame {
+    width: 1280px;
+    height: 720px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-page);
+  }
+
+  /* ---------- Topbar enxuta ---------- */
+  .topbar {
+    background: var(--bg-dark);
+    color: #fff;
+    padding: 11px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 0 0 auto;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 10px; }
+  .logo-dot {
+    width: 24px; height: 24px; border-radius: 6px;
+    background: var(--mereo-purple);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 12px; color: #fff; flex: 0 0 auto;
+  }
+  .topbar-title { font-weight: 700; font-size: 13.5px; }
+  .topbar-sub { font-weight: 400; font-size: 11.5px; color: #B9BBC2; margin-left: 4px; }
+  .topbar-right { font-size: 12px; color: #B9BBC2; font-weight: 500; }
+
+  .content { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; padding: 16px 28px 16px; }
+
+  /* ---------- KPI row ---------- */
+  .kpi-row {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+    margin-bottom: 12px; flex: 0 0 auto;
+  }
+  .kpi-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-top: 3px solid var(--kpi-accent, var(--mereo-purple));
+    border-radius: var(--radius-lg); padding: 13px 18px;
+    box-shadow: 0 1px 2px rgba(16,24,40,0.04);
+  }
+  .kpi-label {
+    font-size: 10.5px; color: var(--ink-soft); font-weight: 700;
+    text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px;
+  }
+  .kpi-value { font-size: 23px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+  .kpi-foot { font-size: 11px; color: var(--ink-soft); margin-bottom: 9px; }
+  .kpi-pill {
+    display: inline-block; font-size: 10.5px; font-weight: 700;
+    padding: 2px 9px; border-radius: var(--radius-pill); margin-left: 5px; vertical-align: 2px;
+  }
+  .pill-bad   { background: var(--bad-soft);  color: var(--bad); }
+  .pill-mid   { background: var(--mid-soft);  color: var(--mid); }
+  .pill-good  { background: var(--good-soft); color: var(--good); }
+  .kpi-spark { height: 5px; border-radius: 3px; background: var(--kpi-accent, var(--mereo-purple)); opacity: .22; }
+  .kpi-spark .fill { height: 100%; border-radius: 3px; background: var(--kpi-accent, var(--mereo-purple)); }
+
+  /* ---------- Distribuição (barra standalone) ---------- */
+  .dist-panel {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 11px 18px;
+    box-shadow: 0 1px 2px rgba(16,24,40,0.04);
+    margin-bottom: 12px; flex: 0 0 auto;
+    display: flex; align-items: center; gap: 18px;
+  }
+  .dist-title { font-size: 11.5px; font-weight: 700; white-space: nowrap; flex: 0 0 auto; }
+  .dist-bar { height: 24px; border-radius: 6px; display: flex; overflow: hidden; flex: 1 1 auto; }
+  .dist-seg { display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10.5px; font-weight: 700; }
+  .dist-legend { display: flex; gap: 16px; font-size: 11px; color: var(--ink-soft); flex: 0 0 auto; white-space: nowrap; }
+  .dist-legend span.dot { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:4px; }
+
+  /* ---------- Grid 2x2 ---------- */
+  .grid-2x2 {
+    display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 14px;
+    flex: 1 1 auto; min-height: 0;
+  }
+  .panel {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 13px 18px;
+    box-shadow: 0 1px 2px rgba(16,24,40,0.04);
+    overflow: hidden; display: flex; flex-direction: column; min-height: 0;
+  }
+  .panel-title { font-size: 12.5px; font-weight: 700; margin: 0 0 2px 0; }
+  .panel-sub { font-size: 10px; color: var(--ink-soft); margin: 0 0 6px 0; line-height: 1.25; }
+
+  /* ---------- Área: grid 3 colunas (nome | direto | consolidado) ---------- */
+  .area-tree { flex: 1 1 auto; overflow: hidden; display: flex; flex-direction: column; }
+  .area-head {
+    display: grid; grid-template-columns: 1fr 70px 86px; gap: 6px;
+    font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em;
+    color: var(--ink-soft); padding-bottom: 3px; border-bottom: 1px solid var(--border); margin-bottom: 2px;
+  }
+  .area-head .col-r { text-align: center; }
+  .area-row {
+    display: grid; grid-template-columns: 1fr 70px 86px; align-items: center;
+    gap: 6px; padding: 0.5px 0; border-bottom: 1px solid var(--border); line-height: 1;
+  }
+  .area-row:last-child { border-bottom: none; }
+  .area-name { font-size: 8.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .area-name.lvl1 { padding-left: 12px; }
+  .area-name.lvl1::before { content: "↳ "; color: var(--ink-soft); }
+  .area-name.lvl2 { padding-left: 24px; }
+  .area-name.lvl2::before { content: "↳ "; color: var(--ink-soft); }
+  .score-badge {
+    min-width: 38px; text-align: center; font-size: 8.5px; font-weight: 800;
+    padding: 0.5px 6px; border-radius: var(--radius-pill); justify-self: center;
+  }
+  .score-badge-single {
+    grid-column: 2 / span 2; text-align: center; font-size: 8.5px; font-weight: 800;
+    padding: 0.5px 6px; border-radius: var(--radius-pill); justify-self: center; min-width: 38px;
+  }
+
+  /* ---------- Zona crítica table ---------- */
+  table.crit-table { width: 100%; border-collapse: collapse; font-size: 9.5px; flex: 1 1 auto; line-height: 1.1; }
+  table.crit-table th {
+    text-align: left; font-size: 8px; color: var(--ink-soft); text-transform: uppercase;
+    letter-spacing: .03em; font-weight: 700; padding: 0 0 3px 0; border-bottom: 1px solid var(--border);
+  }
+  table.crit-table td { padding: 0.8px 0; border-bottom: 1px solid var(--border); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  table.crit-table tr:last-child td { border-bottom: none; }
+  .mini-badge {
+    display: inline-block; font-size: 10px; font-weight: 800;
+    padding: 1px 7px; border-radius: var(--radius-pill); background: var(--bad-soft); color: var(--bad);
+  }
+
+  /* ---------- Gestores ---------- */
+  .gestor-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; flex: 1 1 auto; min-height: 0; }
+  .gestor-list-title { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--ink-soft); margin: 0 0 6px 0; }
+  .gestor-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 11px;
+  }
+  .gestor-item:last-child { border-bottom: none; }
+  .gestor-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gestor-n { font-size: 10px; color: var(--ink-soft); margin-left: 4px; }
+  .gestor-badge {
+    min-width: 44px; text-align: center; font-size: 10.5px; font-weight: 800;
+    padding: 1.5px 8px; border-radius: var(--radius-pill); flex: 0 0 auto;
+  }
+
+  /* ---------- Top 5 colaboradores ---------- */
+  table.top5-table { width: 100%; border-collapse: collapse; font-size: 10px; flex: 1 1 auto; }
+  table.top5-table th {
+    text-align: left; font-size: 8.5px; color: var(--ink-soft); text-transform: uppercase;
+    letter-spacing: .03em; font-weight: 700; padding: 0 0 4px 0; border-bottom: 1px solid var(--border);
+  }
+  table.top5-table td { padding: 2.8px 0; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  table.top5-table tr:last-child td { border-bottom: none; }
+  .rank-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 15px; height: 15px; border-radius: 50%; background: var(--mereo-purple-soft);
+    color: var(--mereo-purple); font-size: 8.5px; font-weight: 800; margin-right: 7px;
+  }
+  .top5-nome { font-weight: 600; font-size: 10px; }
+  .top5-area { font-size: 8.5px; color: var(--ink-soft); display: block; margin-top: 0; margin-left: 22px; line-height: 1.2; }
+  .top5-score {
+    font-size: 10.5px; font-weight: 800; color: var(--good); text-align: right;
+  }
+</style>
+</head>
+<body>
+
+<div class="frame">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo-dot">M</div>
+      <div class="topbar-title">Painel de Performance</div>
+      <div class="topbar-sub">· Mereo Metas</div>
+    </div>
+    <div class="topbar-right">Grupo Aurora &nbsp;·&nbsp; Ciclo 2025</div>
+  </div>
+
+  <div class="content">
+
+    <!-- KPIs -->
+    <div class="kpi-row">
+      <div class="kpi-card" style="--kpi-accent: var(--mereo-purple);">
+        <div class="kpi-label">Score médio do ciclo</div>
+        <div class="kpi-value">95.74</div>
+        <div class="kpi-foot">Mediana 100.36</div>
+        <div class="kpi-spark"><div class="fill" style="width:80%;"></div></div>
+      </div>
+      <div class="kpi-card" style="--kpi-accent: #9CA3AF;">
+        <div class="kpi-label">Elegíveis</div>
+        <div class="kpi-value">72</div>
+        <div class="kpi-foot">de 81 colaboradores</div>
+        <div class="kpi-spark"><div class="fill" style="width:89%;"></div></div>
+      </div>
+      <div class="kpi-card" style="--kpi-accent: var(--bad);">
+        <div class="kpi-label">Zona crítica (&lt;80)</div>
+        <div class="kpi-value">9 <span class="kpi-pill pill-bad">12.5%</span></div>
+        <div class="kpi-foot">ação individual imediata</div>
+        <div class="kpi-spark"><div class="fill" style="width:12.5%;"></div></div>
+      </div>
+      <div class="kpi-card" style="--kpi-accent: var(--mereo-orange);">
+        <div class="kpi-label">Abaixo da meta (100)</div>
+        <div class="kpi-value">48.6% <span class="kpi-pill pill-mid">quase metade</span></div>
+        <div class="kpi-foot">9 críticos + 26 intermediários</div>
+        <div class="kpi-spark"><div class="fill" style="width:48.6%;"></div></div>
+      </div>
+    </div>
+
+    <!-- Distribuição -->
+    <div class="dist-panel">
+      <div class="dist-title">Distribuição de Score</div>
+      <div class="dist-bar">
+        <div class="dist-seg" style="width:12.5%; background:var(--bad);">12.5%</div>
+        <div class="dist-seg" style="width:36.1%; background:var(--mid);">36.1%</div>
+        <div class="dist-seg" style="width:51.4%; background:var(--good);">51.4%</div>
+      </div>
+      <div class="dist-legend">
+        <span><span class="dot" style="background:var(--bad);"></span>Crítico &lt;80 (9)</span>
+        <span><span class="dot" style="background:var(--mid);"></span>80–100 (26)</span>
+        <span><span class="dot" style="background:var(--good);"></span>≥100 (37)</span>
+      </div>
+    </div>
+
+    <!-- Grade 2x2 -->
+    <div class="grid-2x2">
+
+      <!-- 1. Área -->
+      <div class="panel">
+        <div class="panel-title">Score por Área — Direto vs. Consolidado</div>
+        <div class="panel-sub">Áreas-folha têm valor único (Direto = Consolidado); as 5 áreas com subordinadas mostram os dois</div>
+        <div class="area-tree">
+          <div class="area-head">
+            <div></div><div class="col-r">Direto</div><div class="col-r">Consolidado</div>
+          </div>
+
+          <div class="area-row">
+            <div class="area-name">Diretoria Financeira</div>
+            <div class="score-badge" style="background:var(--good-soft); color:var(--good);">104.33</div>
+            <div class="score-badge" style="background:var(--good-soft); color:var(--good);">103.30</div>
+          </div>
+          <div class="area-row">
+            <div class="area-name lvl1">Gerência de Controladoria</div>
+            <div class="score-badge-single" style="background:var(--good-soft); color:var(--good);">103.10</div>
+          </div>
+
+          <div class="area-row">
+            <div class="area-name">Diretoria Comercial</div>
+            <div class="score-badge" style="background:var(--good-soft); color:var(--good);">101.75</div>
+            <div class="score-badge" style="background:var(--mid-soft); color:var(--mid);">95.08</div>
+          </div>
+          <div class="area-row">
+            <div class="area-name lvl1">Gerência de Vendas</div>
+            <div class="score-badge" style="background:var(--mid-soft); color:var(--mid);">98.84</div>
+            <div class="score-badge" style="background:var(--good-soft); color:var(--good);">99.51</div>
+          </div>
+          <div class="area-row">
+            <div class="area-name lvl2">Coordenação Vendas Norte</div>
+            <div class="score-badge-single" style="background:var(--good-soft); color:var(--good);">101.93</div>
+          </div>
+          <div class="area-row">
+            <div class="area-name lvl2">Coordenação Vendas Sul</div>
+            <div class="score-badge-single" style="background:var(--mid-soft); color:var(--mid);">97.79</div>
+          </div>
+          <div class="area-row">
+            <div class="area-name lvl1">Gerência de Marketing</div>
+            <div class="score-badge-single" style="background:var(--bad-soft); color:var(--bad);">84.43</div>
+          </div>
+
+          <div class="area-row">
+            <div class="area-name">Diretoria de Operações</div>
+            <div class="score-badge" style="background:var(--mid-soft); color:var(--mid);">90.08</div>
+            <div class="score-badge" style="background:var(--mid-soft); color:var(--mid);">93.19</div>
+          </div>
+          <div class="area-row">
+            <div class="area-name lvl1">Gerência de Logística</div>
+            <div class="score-badge" style="background:var(--mid-soft); color:var(--mid);">94.24</div>
+            <div class="score-badge" style="background:var(--mid-soft); color:var(--mid);">92.98</div>
+          </div>
+          <div class="area-row">
+            <div class="area-name lvl2">Coordenação de Transporte</div>
+            <div class="score-badge-single" style="background:var(--mid-soft); color:var(--mid);">92.60</div>
+          </div>
+          <div class="area-row">
+            <div class="area-name lvl1">Gerência de Qualidade</div>
+            <div class="score-badge-single" style="background:var(--mid-soft); color:var(--mid);">94.39</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Zona crítica -->
+      <div class="panel">
+        <div class="panel-title">Zona Crítica</div>
+        <div class="panel-sub">9 colaboradores com score &lt; 80 — ação imediata, do menor para o maior</div>
+        <table class="crit-table">
+          <thead><tr><th>Colaborador</th><th style="text-align:right;">Score</th></tr></thead>
+          <tbody>
+            <tr><td>Paula Cardoso</td><td style="text-align:right;"><span class="mini-badge">18.17</span></td></tr>
+            <tr><td>Nicolas Vasconcelos</td><td style="text-align:right;"><span class="mini-badge">31.66</span></td></tr>
+            <tr><td>Quésia Nogueira</td><td style="text-align:right;"><span class="mini-badge">51.42</span></td></tr>
+            <tr><td>Carla Rezende</td><td style="text-align:right;"><span class="mini-badge">54.29</span></td></tr>
+            <tr><td>Sabrina Cardoso</td><td style="text-align:right;"><span class="mini-badge">54.85</span></td></tr>
+            <tr><td>Manuela Oliveira</td><td style="text-align:right;"><span class="mini-badge">63.67</span></td></tr>
+            <tr><td>Otávio Duarte</td><td style="text-align:right;"><span class="mini-badge">69.53</span></td></tr>
+            <tr><td>Flávia Magalhães</td><td style="text-align:right;"><span class="mini-badge">77.93</span></td></tr>
+            <tr><td>Gustavo Vasconcelos</td><td style="text-align:right;"><span class="mini-badge">78.42</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 3. Gestores -->
+      <div class="panel">
+        <div class="panel-title">Gestores — Melhores e Piores</div>
+        <div class="panel-sub">n de subordinados elegíveis ao lado do score</div>
+        <div class="gestor-cols">
+          <div>
+            <div class="gestor-list-title">Top 3</div>
+            <div class="gestor-item">
+              <span class="gestor-name">Sofia Queiroz <span class="gestor-n">(n=9)</span></span>
+              <span class="gestor-badge" style="background:var(--good-soft); color:var(--good);">102.00</span>
+            </div>
+            <div class="gestor-item">
+              <span class="gestor-name">Gustavo Vasconcelos <span class="gestor-n">(n=3)</span></span>
+              <span class="gestor-badge" style="background:var(--good-soft); color:var(--good);">101.22</span>
+            </div>
+            <div class="gestor-item">
+              <span class="gestor-name">Mariana Siqueira <span class="gestor-n">(n=3)</span></span>
+              <span class="gestor-badge" style="background:var(--good-soft); color:var(--good);">98.90</span>
+            </div>
+          </div>
+          <div>
+            <div class="gestor-list-title">Bottom 3</div>
+            <div class="gestor-item">
+              <span class="gestor-name">Olívia Queiroz <span class="gestor-n">(n=9)</span></span>
+              <span class="gestor-badge" style="background:var(--bad-soft); color:var(--bad);">83.57</span>
+            </div>
+            <div class="gestor-item">
+              <span class="gestor-name">Rafael Jardim <span class="gestor-n">(n=7)</span></span>
+              <span class="gestor-badge" style="background:var(--bad-soft); color:var(--bad);">91.41</span>
+            </div>
+            <div class="gestor-item">
+              <span class="gestor-name">Sofia Oliveira <span class="gestor-n">(n=12)</span></span>
+              <span class="gestor-badge" style="background:var(--mid-soft); color:var(--mid);">93.30</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Top 5 colaboradores -->
+      <div class="panel">
+        <div class="panel-title">Top 5 Colaboradores</div>
+        <div class="panel-sub">Maiores scores individuais do ciclo</div>
+        <table class="top5-table">
+          <tbody>
+            <tr>
+              <td><span class="rank-badge">1</span><span class="top5-nome">Quésia Siqueira</span><span class="top5-area">Gerência de Controladoria</span></td>
+              <td class="top5-score">117.72</td>
+            </tr>
+            <tr>
+              <td><span class="rank-badge">2</span><span class="top5-nome">Rafael Jardim</span><span class="top5-area">Gerência de Qualidade</span></td>
+              <td class="top5-score">115.24</td>
+            </tr>
+            <tr>
+              <td><span class="rank-badge">3</span><span class="top5-nome">Elisa Oliveira</span><span class="top5-area">Gerência de Logística</span></td>
+              <td class="top5-score">113.50</td>
+            </tr>
+            <tr>
+              <td><span class="rank-badge">4</span><span class="top5-nome">Pedro Queiroz</span><span class="top5-area">Gerência de Controladoria</span></td>
+              <td class="top5-score">113.02</td>
+            </tr>
+            <tr>
+              <td><span class="rank-badge">5</span><span class="top5-nome">Sofia Queiroz</span><span class="top5-area">Gerência de Controladoria</span></td>
+              <td class="top5-score">112.94</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>

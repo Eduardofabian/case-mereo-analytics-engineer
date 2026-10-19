@@ -1,0 +1,42 @@
+table vw_score_area
+	lineageTag: 7ce873ff-11bd-4059-973d-78d477dd82b3
+
+	column id_area
+		dataType: double
+		formatString: 0
+		lineageTag: b67ce84a-eca0-454e-b3d2-834e9d2bdee6
+		summarizeBy: none
+		sourceColumn: id_area
+
+		annotation SummarizationSetBy = Automatic
+
+	column score_direto
+		dataType: double
+		formatString: 0
+		lineageTag: 610d4b47-8376-4762-aaff-bba7611262cf
+		summarizeBy: sum
+		sourceColumn: score_direto
+
+		annotation SummarizationSetBy = Automatic
+
+	column score_consolidado
+		dataType: double
+		formatString: 0
+		lineageTag: d0792de4-0af2-48e7-8640-57a5a22f2b24
+		summarizeBy: sum
+		sourceColumn: score_consolidado
+
+		annotation SummarizationSetBy = Automatic
+
+	partition vw_score_area = m
+		mode: import
+		source =
+				let
+				  Origem = Csv.Document(File.Contents("C:\Users\Fabian\Desktop\MEREO CASE\painel\dados\vw_score_area.csv"), [Delimiter = ",", Columns = 3, Encoding = 65001, QuoteStyle = QuoteStyle.None]),
+				  #"Cabeçalhos promovidos" = Table.PromoteHeaders(Origem, [PromoteAllScalars = true]),
+				  #"Tipo de coluna alterado" = Table.TransformColumnTypes(#"Cabeçalhos promovidos", {{"id_area", type number}, {"score_direto", type number}, {"score_consolidado", type number}}, "en-US")
+				in
+				  #"Tipo de coluna alterado"
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,29 @@
+model Model
+	culture: pt-BR
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: pt-BR
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["dim_area","dim_colaborador","dim_meta","fact_meta_valor_mensal","vw_score_area","vw_score_colaborador","vw_score_gestor"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table dim_area
+ref table dim_colaborador
+ref table DateTableTemplate_4d0bfaac-8ebb-4ab8-9e6d-df15637c3ad7
+ref table LocalDateTable_827623b8-72a3-4f8c-8b74-3bc6da3badbd
+ref table LocalDateTable_5ebd0a3c-d183-4d71-a232-e9db512fbe42
+ref table dim_meta
+ref table fact_meta_valor_mensal
+ref table vw_score_area
+ref table vw_score_colaborador
+ref table vw_score_gestor
+ref table Medidas
+
+ref cultureInfo pt-BR
+

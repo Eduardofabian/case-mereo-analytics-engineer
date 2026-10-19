@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "Dashboard_case_mereo"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "90d5d00a-9df0-41ae-8d15-3ddf7175e22b"
+  }
+}
