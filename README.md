@@ -51,17 +51,19 @@ respostas/
   p3_gestores.csv
 qualidade/
   relatorio_diagnostico.md  -- 38 checagens sistemáticas rodadas contra o banco
+  achados_qualidade_chat1.md -- achados da primeira varredura (Python/pandas), ver nota abaixo
 etl/
   extract_load.py           -- carga de staging.* a partir do SQLite
   diag_qualidade.py         -- gera qualidade/relatorio_diagnostico.md
   export_respostas.py       -- roda as 3 queries de P1/P2/P3 e exporta CSV (script correto)
+  verificacao_independente.py -- recomputa P1/P2/P3 em pandas direto do SQLite e compara com os CSVs
+  sensibilidade_matriz.py   -- sensibilidade pós-desligamento em 4 definições (colaborador/área/gestor)
 diagramas/
   Mereo_Grupo_Aurora.{sql,svg,png}  -- diagrama ER do modelo
 material_original/
   ENUNCIADO.pdf, ENUNCIADO.docx, dados/  -- material recebido, como veio
 painel/                    -- pendente
 agente/                    -- pendente
-achados_qualidade_chat1.md -- achados da primeira varredura (Python/pandas), ver nota abaixo
 ```
 
 **Nota histórica — `etl/load.py` (removido):** o repositório teve, numa fase
@@ -74,7 +76,7 @@ escreveria num schema `dbo.stg_*` desconectado do pipeline validado em
 `staging/intermediate/marts`. Removido do repositório; `extract_load.py` é
 e sempre foi o script correto para esse passo (carga de `staging.*`).
 
-**Nota sobre `achados_qualidade_chat1.md` vs `qualidade/relatorio_diagnostico.md`:**
+**Nota sobre `qualidade/achados_qualidade_chat1.md` vs `qualidade/relatorio_diagnostico.md`:**
 o primeiro foi gerado numa fase inicial, validado em Python/pandas direto
 sobre os CSVs, sem rodar contra o SQL Server de fato (diz isso explicitamente
 no próprio arquivo). O segundo é uma bateria de 38 checagens sistemáticas
@@ -178,46 +180,88 @@ domínio esperado em tipo_meta/polaridade/tipo_acumulacao.
 
 ### Análise de sensibilidade — lançamento pós-desligamento
 
-Simulação (não altera nenhuma view, só recalcula excluindo os 24
-lançamentos de colaborador elegível) comparando score atual vs. score sem
-esses lançamentos:
+**Pergunta:** manter literais os lançamentos feitos depois do desligamento
+distorce o score de quem está sendo avaliado? O enunciado não define
+"pós-desligamento" nem pede exclusão, então testei quatro leituras e
+reporto primeiro a mais severa.
 
-| id_colaborador | score atual | score sem o lançamento | diferença |
-|---|---|---|---|
-| 138 | 100.52 | 99.84 | 0.68 |
-| 134 | 97.79 | 98.41 | -0.62 |
-| 113 | 109.93 | 109.96 | -0.03 |
-| 135 | 18.17 | 18.17 | 0.00 |
+Duas escolhas independentes na definição:
 
-Só 4 colaboradores são afetados, diferença máxima de 0.68 ponto. Confirma
-que a decisão de manter os lançamentos literais no cálculo não distorce
-nenhum resultado de forma material — não muda elegibilidade, não inverte
-ranking.
+- *De quem é o desligamento?* **holder** = o colaborador cuja nota está
+  sendo calculada (a pergunta de robustez do score é sobre ele) vs.
+  **owner** = o dono da meta que carrega o lançamento. Só divergem nas metas
+  Compartilhadas, que usam lançamentos da meta referenciada (R7).
+- *Qual a fronteira?* **fim** = o mês termina depois do desligamento
+  (mais agressiva) vs. **início** = o mês começa depois (a implementada na
+  quarentena).
 
-**Propagação para P2 (área) e P3 (gestor):** a objeção natural a essa
-análise é que o efeito não fica contido nos 4 colaboradores — P2 e P3
-agregam esses colaboradores para cima na hierarquia, então um desvio
-pequeno no nível individual poderia se acumular. Rodei a mesma simulação
-agregada no nível de área (score direto, médias dos elegíveis por
-`id_area`) e de gestor (score médio do time direto, mesmo filtro de ≥3
-subordinados elegíveis de P3) e comparei contra o valor atual:
+**Resultado principal — pior caso das quatro testadas (holder / fim):**
+a **maior** variação encontrada é de **1.64 ponto** no score de um colaborador, **0.113** no score de uma área (o máximo entre as 11 áreas) e **0.125** no score médio do time de um gestor (o máximo entre os 9). São valores máximos, não médias. O **top 3 / bottom 3 de P3 não muda**, nem a elegibilidade de ninguém.
 
-- **Área:** 10 das 11 áreas têm diferença 0.00; a única que muda (área 5)
-  tem diferença de 0.01 ponto.
-- **Gestor:** mesma coisa — diferença máxima de 0.01 ponto num gestor,
-  todos os outros em 0.00. (Nota: essa checagem ad hoc usou um filtro de
-  ≥3 subordinados elegíveis sem o `flag_ativo_fim_2025 = 1` que
-  `vw_score_gestor` exige — 10 gestores em vez dos 9 oficiais de P3. Não
-  muda a conclusão, já que a diferença máxima é de 0.01, mas o universo
-  checado aqui é ligeiramente mais largo que o de P3.)
+| Definição | colab. que mudam | máx \|Δ\| colaborador | máx \|Δ\| área | máx \|Δ\| gestor (9) | top 3 / bottom 3 de P3 |
+|---|---|---|---|---|---|
+| **holder / fim (pior caso)** | 4 | 1.64 | 0.113 | 0.125 | inalterado |
+| holder / início | 4 | 0.96 | 0.054 | 0.060 | inalterado |
+| owner / fim | 3 | 1.41 | 0.043 | 0.047 | inalterado |
+| owner / início (a da quarentena) | 3 | 0.68 | 0.007 | 0.007 | inalterado |
 
-A diluição pela média (de todos os elegíveis da área, ou de todos os
-subordinados diretos do gestor) absorve o desvio pontual visto no
-colaborador isolado. Conclusão: o "raio de dano" da decisão fica de fato
-contido — não há necessidade de reportar uma segunda versão de P2/P3 por
-causa desse achado.
+Detalhe do pior caso (holder / fim; Δ = score atual − score sem os
+lançamentos pós-desligamento):
+
+| id_colaborador | Δ score |
+|---|---|
+| 134 | -1.64 |
+| 138 | +0.85 |
+| 113 | -0.40 |
+| 135 | -0.34 |
+
+Nota sobre o 113: ele é o único que diminui ao passar de holder / início
+(-0.54) para holder / fim (-0.40). Não é erro de sinal — é efeito do corte
+de R6 e de a acumulação por Soma ser razão de somas. Na meta compartilhada
+5045 (lançamentos do 101, desligamento do 113 em 02/10/2025), excluir só
+nov–dez tira dois meses fracos (atingimento ~82%) e sobe a nota para 92.57;
+excluir também outubro tira um mês bom (~97%) e a nota volta a 92.02. As
+outras duas metas ficam em 106–107 e 120 (travada em R6), então a diferença
+vem toda da 5045. Conferido à mão: 109.93 → 110.47 → 110.32.
+
+Áreas afetadas: 5 (-0.113), 3 (-0.040) e, no consolidado, 1 (-0.046) e
+2 (-0.019). Gestores afetados: 129 (-0.125) e 106 (-0.044); todos os
+outros dos 9 oficiais em 0. "Pior caso" vale para as quatro leituras
+testadas, não para toda definição concebível.
+
+**Por que a view de quarentena usa owner (e a sensibilidade não):** são
+duas perguntas diferentes. `intermediate.lancamento_rejeitado` é um
+achado de qualidade de dado na origem — "esse lançamento é anômalo porque
+foi feito por alguém que já tinha saído" — e isso é propriedade do evento
+de lançamento, ou seja, do dono da meta que o carrega (owner). Já a
+sensibilidade pergunta se o score de quem está sendo avaliado é distorcido,
+e isso é propriedade do colaborador pontuado (holder). Em versões
+anteriores deste README a sensibilidade herdou o owner da quarentena e
+reportou 0.68 como número principal; isso subestimava o efeito e foi
+corrigido aqui. Nada em P1/P2/P3 depende dessa escolha: os três usam os
+lançamentos literais.
+
+A discussão numérica anterior que citava 0.05 / 1.41 / 0.99 corresponde
+à variante owner / fim (mesmos colaboradores, sinal da diferença invertido).
+
+**Universo do gestor:** as comparações usam os 9 gestores oficiais de P3
+(ativos em 31/12/2025 e ≥3 subordinados diretos elegíveis). Uma checagem
+ad hoc anterior usou 10 por omitir `flag_ativo_fim_2025 = 1`; foi refeita
+com o filtro correto (`etl/sensibilidade_matriz.py`).
+
+A diluição pela média (de todos os elegíveis da área, ou dos subordinados
+diretos do gestor) absorve o desvio pontual do colaborador isolado.
+Conclusão: o "raio de dano" da decisão fica contido mesmo na leitura mais
+severa — não há necessidade de reportar uma segunda versão de P2/P3.
 
 ## Validação de P1/P2/P3
+
+- **Recomputação independente (pandas, sem usar nenhuma view/SQL do
+  projeto):** `etl/verificacao_independente.py` reimplementa R1–R11 direto
+  do SQLite original e compara com os três CSVs de `respostas/`. Resultado:
+  P1 (72 linhas), P2 (11) e P3 (6) idênticos, diferença máxima 0.0000, e
+  universo de P3 = 9 gestores. Foi a primeira confirmação que não vinha de
+  auto-relato do pipeline SQL.
 
 - **P1 (score por colaborador):** 72 de 81 colaboradores elegíveis (R10),
   scores no intervalo [0, 120] como R6 define. Recalculei a média ponderada
