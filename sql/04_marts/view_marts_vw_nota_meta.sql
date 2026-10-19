@@ -1,10 +1,10 @@
-IF OBJECT_ID('intermediate.vw_nota_meta', 'V') IS NOT NULL DROP VIEW intermediate.vw_nota_meta;
+IF OBJECT_ID('marts.vw_nota_meta', 'V') IS NOT NULL DROP VIEW marts.vw_nota_meta;
 GO
 
 -- R4, R5, R6: atingimento e nota por meta. So olha ciclo 2025 (R1) e lancamento valido.
 -- meta com denominador zero (achado: meta 5094, previsto=0 o ano inteiro) ou sem
 -- nenhum mes valido cai em R8, nota NULL, nao em erro.
-CREATE VIEW intermediate.vw_nota_meta AS
+CREATE VIEW marts.vw_nota_meta AS
 WITH lanc AS (
     SELECT dm.id_meta, dm.polaridade_efetiva, dm.tipo_acumulacao_efetiva,
            f.mes, f.previsto, f.realizado

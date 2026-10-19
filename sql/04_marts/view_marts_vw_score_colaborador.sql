@@ -10,7 +10,7 @@ SELECT
     dm.id_colaborador,
     SUM(nm.nota * dm.peso_efetivo) / NULLIF(SUM(dm.peso_efetivo), 0) AS score
 FROM marts.dim_meta dm
-JOIN intermediate.vw_nota_meta nm ON nm.id_meta = dm.id_meta
+JOIN marts.vw_nota_meta nm ON nm.id_meta = dm.id_meta
 WHERE dm.id_ciclo = 2025
   AND nm.nota IS NOT NULL
 GROUP BY dm.id_colaborador;

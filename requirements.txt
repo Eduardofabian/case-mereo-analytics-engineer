@@ -1,0 +1,14 @@
+# === pipeline SQL (etl/*.py, run_pipeline.py) — obrigatório pra gerar P1/P2/P3 ===
+# pip install pyodbc pandas numpy
+pyodbc
+pandas
+numpy
+
+# === agente de IA (agente/) — só necessário pra rodar o agente ===
+# pip install pydantic-ai duckdb
+pydantic-ai
+duckdb
+
+# === painel (painel/streamlit/prototipo_streamlit.py) — só necessário pra rodar o protótipo Streamlit ===
+# pip install streamlit
+streamlit

@@ -222,11 +222,11 @@ não quebra R9 (normaliza por soma de peso), mas documentar
 |              174 |     90 |
 
 ## ⚪ meta.tipo_meta com valor fora do esperado (0 linha(s))
-valores encontrados: {'Individual', 'Compartilhada'}
+valores encontrados: {'Compartilhada', 'Individual'}
 
 
 ## ⚪ meta.polaridade com valor fora do esperado (0 linha(s))
-valores encontrados: {None, 'Melhor para baixo', 'Melhor para cima'}
+valores encontrados: {None, 'Melhor para cima', 'Melhor para baixo'}
 
 
 ## ⚪ meta.tipo_acumulacao com valor fora do esperado (0 linha(s))

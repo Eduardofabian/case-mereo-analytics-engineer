@@ -4,7 +4,7 @@ GO
 -- R7: meta Compartilhada usa polaridade, acumulacao e lancamentos da meta referenciada
 -- (o peso continua sendo o da propria meta compartilhada).
 -- sem filtro de ciclo aqui de proposito: R1 e regra de consumo, nao de resolucao de meta.
--- quem filtra ciclo 2025 e quem usa essa view (intermediate.vw_nota_meta).
+-- quem filtra ciclo 2025 e quem usa essa view (marts.vw_nota_meta).
 CREATE VIEW intermediate.meta_resolvida AS
 SELECT
     m.id_meta,

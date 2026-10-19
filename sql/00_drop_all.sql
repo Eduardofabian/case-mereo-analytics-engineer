@@ -3,6 +3,7 @@ GO
 
 -- marts (ordem nao importa pra DROP, views sem SCHEMABINDING nao bloqueiam)
 IF OBJECT_ID('marts.vw_score_gestor', 'V') IS NOT NULL DROP VIEW marts.vw_score_gestor;
+IF OBJECT_ID('marts.vw_nota_meta', 'V') IS NOT NULL DROP VIEW marts.vw_nota_meta;
 IF OBJECT_ID('marts.vw_score_area', 'V') IS NOT NULL DROP VIEW marts.vw_score_area;
 IF OBJECT_ID('marts.vw_score_colaborador', 'V') IS NOT NULL DROP VIEW marts.vw_score_colaborador;
 IF OBJECT_ID('marts.fact_meta_valor_mensal', 'V') IS NOT NULL DROP VIEW marts.fact_meta_valor_mensal;
@@ -13,6 +14,10 @@ GO
 
 -- intermediate
 IF OBJECT_ID('intermediate.area_descendentes', 'V') IS NOT NULL DROP VIEW intermediate.area_descendentes;
+-- leftover de schema: vw_nota_meta morava em intermediate antes da correção
+-- de camada (ela lê de marts.dim_meta/marts.fact_meta_valor_mensal, então
+-- pertence a marts, não a intermediate). Mantido aqui só pra limpar bancos
+-- que já rodaram a versão antiga; inofensivo se o objeto não existir.
 IF OBJECT_ID('intermediate.vw_nota_meta', 'V') IS NOT NULL DROP VIEW intermediate.vw_nota_meta;
 IF OBJECT_ID('intermediate.meta_resolvida', 'V') IS NOT NULL DROP VIEW intermediate.meta_resolvida;
 IF OBJECT_ID('intermediate.lancamento_rejeitado', 'V') IS NOT NULL DROP VIEW intermediate.lancamento_rejeitado;

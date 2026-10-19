@@ -31,3 +31,17 @@ desktop.ini
 # Notas de trabalho locais, fora da estrutura de entrega
 md/
 Tarefas/
+
+# Dado de origem — recebido como material do case, não é código versionável.
+# O avaliador recebe os mesmos arquivos fora do git (ver README, "Como reproduzir").
+material_original/
+
+# Dado derivado — saída reproduzível de etl/run_pipeline.py a partir do SQL Server.
+# Glob explícito (não */dados/*.csv), pra nunca arriscar alcançar respostas/,
+# que são os três CSVs exigidos pelo enunciado e não devem ser ignorados.
+# painel/dados/*.csv ignorado de proposito: alimenta so o .pbip local, o
+# entregavel do painel e o print/PDF, nao precisa estar versionado.
+painel/dados/*.csv
+# agente/dados/*.csv NAO e ignorado (ao contrario de painel/dados acima):
+# e o que torna o agente self-contained, sem depender do SQL Server local
+# pra rodar -- ver agente/README.md. Precisa ir versionado/zipado.

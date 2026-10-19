@@ -6,7 +6,7 @@ declarativos (cada um isolado, auditável, com amostra de linhas problemáticas)
 e gera um relatório em markdown + saída no terminal.
 
 Uso:
-    python etl/diag_qualidade.py
+    python etl/verificacao/diag_qualidade.py
 """
 import pyodbc
 import pandas as pd
@@ -20,7 +20,7 @@ SQLSERVER_CONN_STR = (
     "Trusted_Connection=yes;"
 )
 
-REPORT_PATH = pathlib.Path(r"C:\Users\Fabian\Desktop\MEREO CASE\qualidade\relatorio_diagnostico.md")
+REPORT_PATH = pathlib.Path(__file__).resolve().parent / "relatorio_diagnostico.md"
 
 ELEGIBILIDADE_ADM_LIMITE = datetime.date(2025, 9, 30)
 ELEGIBILIDADE_DESLIG_LIMITE = datetime.date(2025, 7, 1)

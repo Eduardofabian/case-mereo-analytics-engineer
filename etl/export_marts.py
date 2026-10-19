@@ -27,6 +27,10 @@ TABELAS = [
     "marts.vw_score_colaborador",
     "marts.vw_score_area",
     "marts.vw_score_gestor",
+    # Exportada pra alimentar a tool metas_colaborador_por_atingimento do
+    # agente (Parte 4) -- sem isso, atingimento/nota so existiam dentro do
+    # SQL Server, e o agente nao roda fora da sua maquina.
+    "marts.vw_nota_meta",
 ]
 
 

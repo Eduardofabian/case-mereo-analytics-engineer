@@ -15,7 +15,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-ROOT = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(__file__).resolve().parent.parent  # raiz do projeto
+ROOT = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(__file__).resolve().parent.parent.parent  # raiz do projeto (etl/verificacao/ -> etl/ -> raiz)
 DB = ROOT / "material_original" / "dados" / "case_metas.db"
 RESP = ROOT / "respostas"
 

@@ -13,7 +13,10 @@ import pathlib
 import sys
 import datetime
 
-SQLITE_PATH = r"C:\Users\Fabian\Desktop\MEREO CASE\Case Dados - Mereo (atual)\dados\case_metas.db"
+SQLITE_PATH = pathlib.Path(__file__).resolve().parent.parent / "material_original" / "dados" / "case_metas.db"
+# Corrigido (era um caminho absoluto hardcoded de uma pasta antiga que não existe
+# mais nesta árvore: "Case Dados - Mereo (atual)\dados\case_metas.db"). Agora é
+# relativo à raiz do projeto, como os outros scripts de etl/.
 SQLSERVER_CONN_STR = (
     "DRIVER={ODBC Driver 17 for SQL Server};"
     "SERVER=localhost;"
