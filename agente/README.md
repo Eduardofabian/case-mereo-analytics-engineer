@@ -186,10 +186,20 @@ tool, explicacao diferente, porque o system prompt nunca deu as regras
 de negocio ao agente, so os numeros ja calculados -- quando ele tenta
 explicar o *porque*, as vezes acerta por inferencia, as vezes especula.
 
-**O que eu faria pra melhorar**:
-1. Colocar um resumo das regras-chave (pelo menos R6, talvez R9-R11) no
-   system prompt, pra tirar essa variancia de explicacao e o agente
-   responder com certeza sempre, nao por sorte.
+**O que eu faria pra melhorar** (item 1 ja aplicado e verificado; 2 e 3
+ficam como proposta, nao deu tempo):
+1. **Aplicado e verificado.** Acrescentei ao `SYSTEM_PROMPT` em
+   `agent.py` um resumo curto de R6 (faixa de nota), R9 (score do
+   colaborador) e R11 (score de area direto/consolidado) -- antes so os
+   numeros ja calculados chegavam ao agente, nunca a regra por tras
+   deles. Rodei `run_perguntas.py` de novo depois da mudanca: a
+   explicacao da Q4 citou a regra direto e com certeza ("a regra de
+   negocio diz que atingimento abaixo de 80% trava a nota em 0... nao e
+   erro de lancamento, e consequencia direta"), sem hedge -- ver
+   `respostas.md`. Ressalva honesta: so rodei uma vez pos-mudanca, nao
+   varias; nao dou como provado que a variancia sumiu de forma
+   definitiva, so que a causa raiz (agente adivinhando a regra) foi
+   removida, o que deveria eliminar o problema por construcao.
 2. Normalizar acento na resolucao de nome (`unaccent` ou equivalente no
    DuckDB), pra "Gerencia" bater com "Gerência" sem exigir grafia exata.
 3. Golden set de regressao automatizado: hoje a validacao das 5
