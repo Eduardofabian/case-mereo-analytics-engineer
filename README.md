@@ -591,16 +591,22 @@ erro de origem era meu, não dele. Corrigido.
 Q4 mudou entre rodadas para o mesmo resultado numérico: uma vez tratou
 "nota zero" como suposição ("provavelmente por estarem abaixo de algum
 limiar mínimo"), outra vez citou a regra R6 com certeza. Mesmos dados,
-mesma tool, explicação diferente, porque o system prompt nunca deu as
-regras de negócio ao agente, só os números já calculados; quando ele
-tenta explicar o *porquê*, às vezes acerta por inferência, às vezes
-especula.
+mesma tool, explicação diferente, porque o system prompt, na época,
+nunca tinha dado as regras de negócio ao agente, só os números já
+calculados; quando ele tentava explicar o *porquê*, às vezes acertava
+por inferência, às vezes especulava.
 
-O que eu faria para melhorar: (1) colocar um resumo das regras-chave
-(pelo menos R6) no system prompt, para tirar essa variância de
-explicação; (2) normalizar acento na resolução de nome, para "Gerencia"
-bater com "Gerência" sem exigir grafia exata; (3) um golden set de
-regressão automatizado rodando as tools direto contra os CSVs, sem LLM:
+O que eu melhoraria: (1) **aplicado e verificado**: acrescentei ao
+system prompt um resumo de R6 (faixa de nota), R9 (score do
+colaborador) e R11 (score de área direto/consolidado); rodei o agente
+de novo depois da mudança e a Q4 passou a explicar a nota zero citando
+a regra direto, sem hedge (ver `agente/respostas.md`, comentário 4).
+Ressalva honesta: só rodei uma vez pós-mudança, não várias, então não
+dou como provado que a variância sumiu de forma definitiva, só que a
+causa raiz (agente sem acesso à regra) foi removida; (2) normalizar
+acento na resolução de nome, para "Gerencia" bater com "Gerência" sem
+exigir grafia exata; (3) um golden set de regressão automatizado
+rodando as tools direto contra os CSVs, sem LLM:
 foi esse tipo de checagem (não uma chamada de API) que usei para validar
 a migração de `intermediate.vw_nota_meta` para `marts.vw_nota_meta` sem
 gastar tempo nem custo de token.

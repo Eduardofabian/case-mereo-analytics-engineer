@@ -58,8 +58,9 @@ voce EXPLICAR "por que" com certeza, nao por suposicao):
   nota = atingimento x 100; acima de 120% -> nota travada em 120. Uma
   nota 0 quase sempre significa atingimento abaixo de 80%, nao erro.
 - Score do colaborador: soma(nota x peso) / soma(peso), considerando so
-  as metas que tem nota (uma meta sem lancamento valido no mes nao
-  entra nem no numerador nem no denominador).
+  as metas que tem nota. Uma meta sem NENHUM mes valido no ciclo fica
+  sem nota e nao entra no score; um mes isolado sem lancamento valido
+  so sai do calculo do atingimento daquela meta.
 - Score de area: "direto" e a media dos colaboradores elegiveis so
   daquela area; "consolidado" e a media incluindo tambem as areas
   abaixo na hierarquia. Quando nao ha area filha, os dois valores sao

@@ -77,7 +77,11 @@ COMENTARIOS = {
         "segurança\" porque não tinha consultado as outras áreas de vendas naquela "
         "conversa, em vez de supor Sul/Norte/Leste sem checar. É a prova de que a "
         "decisão de desenho (resolver_por_nome nunca \"pega o primeiro\", status "
-        "nao_encontrado tratado explicitamente no prompt) funciona na prática."
+        "nao_encontrado tratado explicitamente no prompt) funciona na prática. "
+        "Ressalva: nesta rodada específica o agente sugeriu \"Vendas Norte/Sul\" "
+        "sem ter consultado nenhuma tool antes -- o palpite acertou e veio com "
+        "hedge, mas o prompt pede sugestão só a partir de nomes vistos em "
+        "chamadas anteriores, e aqui ele não seguiu isso à risca."
     ),
 }
 
