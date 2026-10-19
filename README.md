@@ -4,6 +4,20 @@ Resultado de cada colaborador, área e gestor do ciclo 2025, a partir da base
 `case_metas.db` fornecida, com os problemas de qualidade da base mapeados e
 as decisões de tratamento justificadas.
 
+## Stack técnica
+
+- **Banco de dados:** SQL Server, pipeline em T-SQL puro, três camadas
+  (`staging` → `intermediate` → `marts`); fonte original é o
+  `case_metas.db` (SQLite) fornecido no enunciado.
+- **ETL/orquestração:** Python 3.11+ (`pyodbc`, `pandas`, `numpy`),
+  `etl/run_pipeline.py` disparando o pipeline ponta a ponta.
+- **Painel:** Power BI (`.pbip`, formato de projeto versionável) para a
+  entrega final; Streamlit para o protótipo de decisão de conteúdo
+  (`painel/streamlit/`).
+- **Agente de IA:** Pydantic AI + API Anthropic (Claude), com DuckDB em
+  memória lendo CSVs materializados de `marts.*` (self-contained, não
+  depende de conexão com o SQL Server).
+
 ## Uso de IA neste case
 
 Usei o Claude (Anthropic) como par técnico durante todo o desenvolvimento:
@@ -524,6 +538,15 @@ pip install -r requirements.txt
 $env:ANTHROPIC_API_KEY="sua-chave-aqui"
 python run_perguntas.py
 ```
+
+A chave vem do [Claude Console](https://console.anthropic.com/) (cria
+conta, gera a chave em "API Keys"; é cobrado por uso, não por
+assinatura). `$env:ANTHROPIC_API_KEY` só vale pra sessão atual do
+PowerShell; pra persistir entre sessões, defina como variável de
+ambiente do Windows (`setx ANTHROPIC_API_KEY "sua-chave-aqui"` e abra um
+terminal novo). Sem a chave, `run_perguntas.py` falha na primeira
+chamada à API, porque o agente chama o modelo de verdade, não é
+mockado.
 
 Gera `agente/respostas.md` com as 5 respostas reais. Não depende de SQL
 Server, driver ODBC nem autenticação Windows, só Python e os CSVs já
