@@ -19,7 +19,7 @@ table Medidas
 			        dim_colaborador[flag_elegivel_r10] = 1
 			    )
 			RETURN
-			"Mediana " & FORMAT ( Mediana, "0.00", "en-US" )
+			"Mediana " & FORMAT ( Mediana, "0.00", "pt-BR" )
 		lineageTag: d45ac5aa-4eab-4f93-bf13-4b42ca7c1384
 
 	measure Elegiveis =

@@ -29,7 +29,7 @@
               "queryRef": "dim_area.Area Nivel 0",
               "nativeQueryRef": "Area",
               "active": true,
-              "displayName": "Area"
+              "displayName": "Área"
             },
             {
               "field": {
@@ -866,7 +866,7 @@
       },
       {
         "name": "53fa87f898ab2c698176",
-        "displayName": "Area",
+        "displayName": "Área",
         "field": {
           "Column": {
             "Expression": {

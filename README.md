@@ -65,9 +65,10 @@ Rodei a `auditoria-entrega-mereo` duas vezes: a primeira apontou 84/100
 com gaps específicos (peso negativo não documentado, matriz de áreas
 cortada, caminhos obsoletos da reorganização, comentários do agente
 desatualizados); apliquei as correções e a segunda rodada confirmou
-91/100, com os três achados remanescentes também corrigidos antes do
-commit final. Os dois relatórios ficam versionados em `_review/` como
-evidência do processo.
+91/100; dos achados remanescentes, corrigi os comentários do agente e a
+evidência das skills, e a matriz sem recuo ficou registrada em
+"Limitações conhecidas". Os relatórios ficam versionados em `_review/`
+como evidência do processo.
 
 A `auditoria-dashboard-mereo` foi rodada ao final, depois de várias
 correções manuais feitas junto com o par técnico durante a tarde
@@ -254,7 +255,8 @@ fechada ("manter literal no cálculo"), sem nenhum erro de sintaxe pra
 avisar. Rodando a query de verificação com essa versão (com o bug ainda
 ativo) nesta sessão, o resultado real era `flag_valido`: 343 inválidos /
 3245 válidos (343 = 181 originais + 162 pós-desligamento recém-excluídos,
-3245 + 343 = 3588 = total de lançamentos). Em algum ponto da conversa esse
+3245 + 343 = 3588 = total de lançamentos após R2, ou seja, 3633
+brutos menos 45 duplicados). Em algum ponto da conversa esse
 número foi transcrito incorretamente como "362" ao resumir o resultado em
 texto: um erro de leitura da tela, não um terceiro número real nem
 inconsistência do pipeline. Revertido antes de gerar qualquer CSV nesse
