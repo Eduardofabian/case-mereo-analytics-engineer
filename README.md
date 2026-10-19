@@ -24,10 +24,14 @@ compartilhada com lançamento próprio) foram meu julgamento, documentado
 abaixo caso a caso — a IA ajudou a identificar o padrão e propor a regra,
 mas a decisão de qual regra aplicar foi minha.
 
+O mesmo processo se repetiu nas outras frentes do case: o protótipo HTML/Figma, os tropeços reais de Power BI documentados na seção **Painel — processo de decisão**, a arquitetura do agente (ferramentas fixas em vez de SQL livre, como a Parte 4 explica) e as três respostas da Parte 5 foram todos desenvolvidos com o Claude como par técnico — proposta de abordagem seguida de teste e crítica, não aceitação automática. Como artefato adicional de uso de IA, este repositório também inclui duas skills de auditoria específicas deste case (`skills/`), construídas para checar a entrega e o painel contra os critérios exatos do enunciado e contra o produto real da Mereo, não um checklist genérico.
+
 ## Estrutura do repositório
 
 ```
 README.md
+requirements.txt           -- dependências dos 3 componentes (pipeline/agente/painel), 3 blocos comentados
+verificar_ambiente.py      -- confere o que está instalado antes de rodar, aponta o que falta
 sql/
   00_drop_all.sql          -- reset completo (view + tabela), útil em re-execução
   01_setup/                -- CREATE DATABASE, CREATE SCHEMA
@@ -71,6 +75,9 @@ agente/                    -- agente de IA (Parte 4, ver seção própria abaixo
   run_perguntas.py         -- roda as 5 perguntas obrigatórias, grava respostas.md
   respostas.md             -- as 5 respostas reais + comentário de acerto/erro/melhoria
   dados/                   -- 8 CSVs (marts.*), tornam o agente self-contained, sem SQL Server
+skills/
+  auditoria-entrega-mereo/    -- skill de auditoria da entrega (Claude Code), critérios e pesos exatos do enunciado
+  auditoria-dashboard-mereo/  -- skill de auditoria do painel, star schema e padrão visual real do produto Mereo
 ```
 
 **Nota histórica — `etl/load.py` (removido):** o repositório teve, numa fase
@@ -300,8 +307,10 @@ PDF/print e código-fonte se possível (`painel/entrega/Mereo_Case_Dashboard_Pwb
 ### Etapa 1 — Protótipo Streamlit (`painel/streamlit/`): decidir o quê mostrar
 
 Antes de discutir pixel, cor ou ferramenta, a pergunta era "quais métricas
-entram e quais não". O protótipo lê direto de `painel/dados/p1/p2/p3_enriquecido.csv`,
-sem compromisso visual nenhum, e existe só pra isso: 3 opções de
+entram e quais não". O protótipo monta os dados em runtime, fazendo merge de
+`painel/dados/vw_score_*.csv` com `dim_*.csv` dentro do próprio script
+(sem arquivo intermediário materializado), sem compromisso visual nenhum,
+e existe só pra isso: 3 opções de
 layout/conteúdo (cards executivos, narrativa vertical, grade densa) pra
 comparar o que fazia sentido mostrar pra diretoria. O que essa etapa
 resolveu: fechar a lista de 5 blocos de `analise_resultados.md` (score
@@ -463,7 +472,7 @@ componente — só o primeiro é obrigatório pra gerar P1/P2/P3:
 
 - **Pipeline SQL** (obrigatório): `pyodbc`, `pandas`, `numpy`
 - **Agente de IA** (`agente/`): `pydantic-ai`, `duckdb`
-- **Painel** (`painel/prototipo_streamlit.py`): `streamlit`
+- **Painel** (`painel/streamlit/prototipo_streamlit.py`): `streamlit`
 
 `pip install -r requirements.txt` instala os três blocos. Pra instalar só
 o necessário pro pipeline: `pip install pyodbc pandas numpy`.
@@ -478,8 +487,10 @@ opcionais dependendo do que se quer rodar.
 ## Como reproduzir
 
 0. Colocar os arquivos de dados recebidos no case em
-   `material_original/dados/` (não versionado neste repo — ver
-   `.gitignore` e a nota acima sobre dado de origem).
+   `material_original/dados/` (não versionado neste repo — é dado de
+   origem fornecido no próprio enunciado, arquivo `.db`/`.xlsx` volumoso;
+   ver `.gitignore` e a seção **Limitações conhecidas** no final deste
+   README).
 1. `pip install -r requirements.txt` (instala os três blocos — pipeline,
    agente e painel). Opcional: `python verificar_ambiente.py` pra conferir
    o ambiente antes de rodar.
@@ -514,3 +525,28 @@ Sem alguém testando cada resposta, o erro raramente aparece como "o agente diss
 ### 3. O RH diz que o score de uma área no painel não bate com a planilha deles. Por onde você começa?
 
 Antes de abrir qualquer query, eu faria perguntas para a pessoa: quem mantém essa planilha, com que frequência atualiza, e se ela segue a mesma definição de regra que o painel usa ou nasceu de outro processo, talvez mais antigo, com um critério nunca documentado formalmente. Divergência não significa que o painel está certo. Pode ser o contrário: a planilha reflete um ajuste manual que o RH faz há meses e que virou prática sem virar regra escrita, e nesse caso o problema é de negócio. Presumir que o sistema é a fonte de verdade antes dessa conversa é um tipo de erro; depois eu partiria para a checagem técnica. Neste projeto, essa checagem já está pronta: rodo o `verificacao_independente.py`, que reimplementa as regras em pandas direto do SQLite original, sem usar nenhuma view do projeto, e compara contra os três CSVs de resposta, isolando se a causa é regra de cálculo ou dado de origem.
+
+
+## Limitações conhecidas
+
+- **Resolução de nome no agente (`resolver_por_nome`):** usa `ILIKE`, que é
+  case-insensitive mas não remove acento — "Gerencia" não bate com
+  "Gerência" sem grafia exata. Documentado e testado na Parte 4; melhoria
+  proposta lá (normalizar acento antes de comparar).
+- **Caminho absoluto no `.pbip`:** o modelo Power BI lê os CSVs de
+  `painel/dados/` por caminho absoluto Windows
+  (`C:\Users\Fabian\Desktop\MEREO CASE\painel\dados\*.csv`). Abrir o
+  projeto numa outra máquina exige reapontar a fonte de dados no Power BI
+  antes de atualizar o modelo — decisão aceita por tempo, não um bug não
+  percebido.
+- **`material_original/` fora do versionamento:** é o dado de origem
+  fornecido no enunciado (`.db`/`.xlsx`), não código produzido neste case;
+  mantido fora do git por ser volumoso e já estar anexado ao material
+  original. O arquivo continua presente no disco, só não é rastreado.
+- **`sql/06_verificacao/verificacao_independente_staging.sql`** não foi
+  revisado na rodada final de reorganização — não confirmado se ainda
+  reflete a estrutura atual de `staging`.
+- **UI do protótipo Streamlit** não foi validada visualmente após a
+  correção do merge em runtime (só a função de carga de dados foi testada
+  isoladamente) — risco baixo porque o protótipo não é o entregável
+  avaliado da Parte 3 (esse é o `.pbip`/print em `painel/entrega/`).
